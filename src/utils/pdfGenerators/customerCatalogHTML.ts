@@ -1,0 +1,366 @@
+import { Item, Exhibition } from '../../types'
+
+interface CustomerCatalogHTMLProps {
+  exhibition: Exhibition
+  items: Item[]
+  imageBase64Map?: Record<string, string> // 画像URLをbase64データURLにマッピング
+}
+
+export function generateCustomerCatalogHTML({ exhibition, items, imageBase64Map }: CustomerCatalogHTMLProps): string {
+  const formatDate = (timestamp: any): string => {
+    if (!timestamp) return ''
+    let date: Date
+    if (timestamp.toDate) {
+      date = timestamp.toDate()
+    } else if (timestamp instanceof Date) {
+      date = timestamp
+    } else {
+      return ''
+    }
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  }
+
+  // ページごとにアイテムを分割
+  // 全てのページにヘッダーがあるため、全ページ10アイテムずつ（5列×2段）
+  const itemsPerPage = 10
+  const pages: Item[][] = []
+
+  for (let i = 0; i < items.length; i += itemsPerPage) {
+    pages.push(items.slice(i, i + itemsPerPage))
+  }
+
+  return `
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Hiragino Kaku Gothic Pro', 'メイリオ', 'MS PGothic', sans-serif;
+        }
+
+        .pdf-page {
+          width: 1123px;
+          height: 794px;
+          position: relative;
+          background: white;
+          page-break-after: always;
+        }
+
+        /* 表紙スタイル */
+        .cover-page {
+          background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 60px;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .cover-page::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          right: -20%;
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+          border-radius: 50%;
+        }
+
+        .cover-page::after {
+          content: '';
+          position: absolute;
+          bottom: -30%;
+          left: -20%;
+          width: 500px;
+          height: 500px;
+          background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+          border-radius: 50%;
+        }
+
+        .cover-content {
+          text-align: center;
+          color: white;
+          position: relative;
+          z-index: 1;
+        }
+
+        .cover-logo {
+          width: 240px;
+          height: 60px;
+          background: linear-gradient(to right, #fbbf24, #f59e0b);
+          margin: 0 auto 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          font-size: 36px;
+          font-weight: 900;
+          color: #064e3b;
+          box-shadow: 0 10px 30px rgba(251, 191, 36, 0.4);
+          letter-spacing: 6px;
+          line-height: 1;
+          padding-top: 3px;
+        }
+
+        .cover-company {
+          font-size: 16px;
+          margin-bottom: 80px;
+          opacity: 0.95;
+          letter-spacing: 2px;
+          color: white;
+          text-align: center;
+          line-height: 1.5;
+        }
+
+        .cover-title {
+          font-size: 56px;
+          font-weight: bold;
+          margin-bottom: 25px;
+          text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+          line-height: 1.2;
+          letter-spacing: 2px;
+        }
+
+        .cover-subtitle {
+          font-size: 28px;
+          margin-bottom: 50px;
+          opacity: 0.95;
+          font-weight: 300;
+          letter-spacing: 3px;
+        }
+
+        .cover-info {
+          font-size: 16px;
+          margin-bottom: 12px;
+          line-height: 1.8;
+          opacity: 0.9;
+        }
+
+        .cover-badge {
+          display: inline-block;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          padding: 14px 40px;
+          border-radius: 30px;
+          margin-top: 20px;
+          font-size: 16px;
+          font-weight: bold;
+          border: 3px solid white;
+          box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+          letter-spacing: 1px;
+        }
+
+        .cover-footer {
+          position: absolute;
+          bottom: 30px;
+          text-align: center;
+          color: rgba(255,255,255,0.7);
+          font-size: 12px;
+        }
+
+        /* コンテンツページスタイル */
+        .content-page {
+          padding: 15px 20px;
+          background: linear-gradient(to bottom, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .page-header {
+          margin-bottom: 8px;
+          padding: 8px 12px;
+          background: linear-gradient(135deg, #064e3b 0%, #059669 100%);
+          border-radius: 6px;
+          box-shadow: 0 2px 10px rgba(6, 78, 59, 0.2);
+          text-align: left;
+        }
+
+        .page-title {
+          font-size: 28px;
+          font-weight: bold;
+          color: white;
+          margin-bottom: 8px;
+          letter-spacing: 1px;
+        }
+
+        .page-subtitle {
+          font-size: 12px;
+          color: #d1fae5;
+        }
+
+        .items-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 8px;
+        }
+
+        .item-card {
+          border: none;
+          padding: 8px;
+          border-radius: 8px;
+          background: white;
+          box-shadow: 0 2px 10px rgba(6, 78, 59, 0.1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .item-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background: linear-gradient(to right, #10b981, #fbbf24);
+        }
+
+        .item-image {
+          width: 100%;
+          height: 140px;
+          background: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #999;
+          font-size: 10px;
+          margin-bottom: 6px;
+          border-radius: 6px;
+          overflow: hidden;
+          border: 1px solid #e5e7eb;
+        }
+
+        .item-image img {
+          max-width: 100%;
+          max-height: 100%;
+          width: auto;
+          height: auto;
+          object-fit: contain;
+        }
+
+        .item-no {
+          font-size: 20px;
+          font-weight: bold;
+          color: #064e3b;
+          margin-bottom: 4px;
+          letter-spacing: 0.5px;
+          padding-bottom: 4px;
+          border-bottom: 2px solid #d1fae5;
+        }
+
+        .item-name {
+          font-size: 13px;
+          font-weight: bold;
+          color: #059669;
+          margin-bottom: 6px;
+          line-height: 1.4;
+          min-height: 36px;
+        }
+
+        .item-field {
+          font-size: 9px;
+          margin-bottom: 3px;
+          line-height: 1.5;
+        }
+
+        .field-label {
+          display: inline-block;
+          min-width: 50px;
+          font-weight: bold;
+          color: #64748b;
+        }
+
+        .field-value {
+          color: #1e293b;
+        }
+
+        .page-footer {
+          position: absolute;
+          bottom: 20px;
+          left: 40px;
+          right: 40px;
+          text-align: center;
+          padding-top: 10px;
+          border-top: 1px solid #ddd;
+          color: #999;
+          font-size: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <!-- 表紙 -->
+      <div class="pdf-page cover-page">
+        <div class="cover-content">
+          <div class="cover-logo">GOKO</div>
+          <div class="cover-company">株式会社 互興 | GOKO Co.,Ltd.</div>
+          <div class="cover-title">${exhibition.exhibitionName}</div>
+          <div class="cover-subtitle">New Collection Catalog</div>
+          <div class="cover-info">期間: ${formatDate(exhibition.startDate)} - ${formatDate(exhibition.endDate)}</div>
+          <div class="cover-info">会場: ${exhibition.location}</div>
+          <div class="cover-badge">お客様用カタログ</div>
+        </div>
+        <div class="cover-footer">株式会社 互興 GOKO Co.,Ltd.</div>
+      </div>
+
+      <!-- 商品ページ -->
+      ${pages.map((pageItems, pageIndex) => `
+        <div class="pdf-page content-page">
+          <div class="page-header">
+            <div class="page-title">${exhibition.exhibitionName}</div>
+            <div class="page-subtitle">${formatDate(exhibition.startDate)} - ${formatDate(exhibition.endDate)} / ${exhibition.location}</div>
+          </div>
+
+          <div class="items-grid">
+            ${pageItems.map(item => `
+              <div class="item-card">
+                <div class="item-image">
+                  ${(() => {
+                    if (item.images && item.images.length > 0) {
+                      const imageUrl = item.images[0].url
+                      const base64Image = imageBase64Map && imageBase64Map[imageUrl]
+
+                      if (base64Image && base64Image.startsWith('data:image/')) {
+                        return `<img src="${base64Image}" alt="${item.name}" />`
+                      } else {
+                        console.warn('画像データが見つかりません:', item.itemNo, imageUrl)
+                        return '<div style="color: #999; font-size: 10px;">画像なし</div>'
+                      }
+                    } else {
+                      return '<div style="color: #999; font-size: 10px;">画像なし</div>'
+                    }
+                  })()}
+                </div>
+                <div class="item-no">${item.itemNo}</div>
+                <div class="item-name">${item.name}</div>
+                <div class="item-field">
+                  <span class="field-label">混率:</span>
+                  <span class="field-value">${item.composition || '-'}</span>
+                </div>
+                <div class="item-field">
+                  <span class="field-label">生地No.:</span>
+                  <span class="field-value">${item.fabricNo || '-'}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="page-footer">
+            株式会社 互興 GOKO Co.,Ltd. | ページ ${pageIndex + 2} / ${pages.length + 1}
+          </div>
+        </div>
+      `).join('')}
+    </body>
+    </html>
+  `
+}
