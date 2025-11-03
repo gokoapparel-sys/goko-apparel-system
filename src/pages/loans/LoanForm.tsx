@@ -150,7 +150,7 @@ const LoanForm: React.FC = () => {
         purpose: formData.purpose,
         notes: formData.notes,
         status: formData.status,
-        createdBy: currentUser?.email,
+        createdBy: currentUser?.email || undefined,
       }
 
       if (isEditMode) {

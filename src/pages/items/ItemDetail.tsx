@@ -161,7 +161,7 @@ const ItemDetail: React.FC = () => {
 
               <div>
                 <p className="text-sm text-gray-600">価格</p>
-                <p className="text-lg font-semibold text-gray-900">¥{item.price.toLocaleString()}</p>
+                <p className="text-lg font-semibold text-gray-900">¥{item.price?.toLocaleString() ?? '-'}</p>
               </div>
 
               <div>

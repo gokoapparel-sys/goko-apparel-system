@@ -4,7 +4,7 @@ import { Timestamp } from 'firebase/firestore'
 import { itemsService } from '../../services/itemsService'
 import { pickupsService } from '../../services/pickupsService'
 import { exhibitionsService } from '../../services/exhibitionsService'
-import { Item, Exhibition, Pickup } from '../../types'
+import { Item, Exhibition } from '../../types'
 
 const ScanItem: React.FC = () => {
   const { itemId } = useParams<{ itemId: string }>()
@@ -86,7 +86,7 @@ const ScanItem: React.FC = () => {
           parsedSession.pickupCode // セッションのpickupCodeを使用
         )
 
-        pickup = await pickupsService.getPickup(newPickupId)
+        pickup = (await pickupsService.getPickup(newPickupId)) || undefined
       }
 
       if (!pickup) {

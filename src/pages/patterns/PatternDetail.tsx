@@ -236,7 +236,7 @@ const PatternDetail: React.FC = () => {
                           <div className="text-sm text-gray-600">{item.sku}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">¥{item.price.toLocaleString()}</div>
+                          <div className="text-sm text-gray-900">¥{item.price?.toLocaleString() ?? '-'}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {item.status === 'active' ? (

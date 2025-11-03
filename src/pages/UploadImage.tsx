@@ -97,7 +97,6 @@ const UploadImage: React.FC = () => {
       setUploading(true)
 
       // ユニークなファイル名を生成
-      const fileExtension = selectedFile.name.split('.').pop()
       const fileName = `${uuidv4()}-${selectedFile.name}`
       const filePath = `uploads/${fileName}`
 

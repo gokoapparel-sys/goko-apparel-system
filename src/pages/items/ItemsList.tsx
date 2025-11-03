@@ -35,7 +35,7 @@ const ItemsList: React.FC = () => {
         sortOrder,
         lastDoc: direction === 'next' ? cursor : undefined,
         firstDoc: direction === 'prev' ? cursor : undefined,
-        direction,
+        direction: direction === 'refresh' ? undefined : direction,
       })
 
       setItems(result.items)

@@ -7,7 +7,6 @@ import {
   updateDoc,
   deleteDoc,
   query,
-  where,
   orderBy,
   limit,
   startAfter,
@@ -76,6 +75,7 @@ function toItem(id: string, d: any): Item {
 
 export interface ListItemsParams {
   q?: string // 検索クエリ（name, sku）
+  status?: 'active' | 'archived' // アイテムのステータスでフィルター
   sortBy?: 'createdAt' | 'updatedAt'
   sortOrder?: 'asc' | 'desc'
   lastDoc?: QueryDocumentSnapshot
@@ -100,7 +100,6 @@ export const itemsService = {
       sortBy = 'updatedAt',
       sortOrder = 'desc',
       lastDoc,
-      firstDoc,
       direction = 'next',
     } = params
 

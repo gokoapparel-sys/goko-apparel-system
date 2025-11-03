@@ -5,7 +5,7 @@ import { exhibitionsService } from '../../services/exhibitionsService'
 import { Exhibition } from '../../types'
 
 const ExhibitionsList: React.FC = () => {
-  const { currentUser, logout } = useAuth()
+  const { currentUser } = useAuth()
   const navigate = useNavigate()
 
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([])

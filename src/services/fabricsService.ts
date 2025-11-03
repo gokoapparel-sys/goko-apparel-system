@@ -49,7 +49,6 @@ export const fabricsService = {
       sortBy = 'updatedAt',
       sortOrder = 'desc',
       lastDoc,
-      firstDoc,
       direction = 'next',
     } = params
 

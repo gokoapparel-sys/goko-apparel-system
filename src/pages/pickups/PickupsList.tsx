@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { pickupsService } from '../../services/pickupsService'
 import { itemsService } from '../../services/itemsService'
-import { Pickup, Item } from '../../types'
+import { Pickup } from '../../types'
 import { generatePickupCatalogHTML } from '../../utils/pdfGenerators/pickupCatalogHTML'
 import { generatePDFFromHTML } from '../../utils/pdfGenerators/htmlToPdfGenerator'
 import { convertImagesToBase64 } from '../../utils/imageUtils'
@@ -273,7 +273,7 @@ const PickupsList: React.FC = () => {
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {pickup.exhibitionName || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{pickup.itemIds.length}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{pickup.itemIds?.length ?? 0}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {formatDate(pickup.createdDate)}
                       </td>

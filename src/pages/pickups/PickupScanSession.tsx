@@ -50,7 +50,7 @@ const PickupScanSession: React.FC = () => {
 
       // ピックアップリストを取得または作成
       const { pickups } = await pickupsService.listPickups()
-      let existingPickup = pickups.find(
+      let existingPickup: Pickup | null | undefined = pickups.find(
         (p) => p.pickupCode === parsedSession.pickupCode && p.exhibitionId === parsedSession.exhibitionId
       )
 
@@ -70,7 +70,7 @@ const PickupScanSession: React.FC = () => {
         existingPickup = await pickupsService.getPickup(newPickupId)
       }
 
-      setPickup(existingPickup!)
+      setPickup(existingPickup ?? null)
 
       // スキャン済みアイテムを読み込み
       if (existingPickup && existingPickup.itemIds && existingPickup.itemIds.length > 0) {

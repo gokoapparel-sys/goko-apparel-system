@@ -51,7 +51,7 @@ const StaffWebCatalog: React.FC = () => {
       setExhibition(exhibitionData)
 
       // カタログアイテムを取得
-      const catalogItemIds = exhibitionData.catalogItemIds || []
+      const catalogItemIds = exhibitionData?.catalogItemIds || []
       if (catalogItemIds.length > 0) {
         const result = await itemsService.listItems()
         const catalogItems = result.items.filter(item => catalogItemIds.includes(item.id!))

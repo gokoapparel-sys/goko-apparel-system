@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { itemsService } from '../../services/itemsService'
-import { patternsService } from '../../services/patternsService'
-import { Item, Pattern } from '../../types'
 
 const ItemForm: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -34,23 +32,10 @@ const ItemForm: React.FC = () => {
   const [existingImages, setExistingImages] = useState<{ url: string; path: string }[]>([])
   const [newImages, setNewImages] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
-  const [patterns, setPatterns] = useState<Pattern[]>([])
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
-  // 型紙一覧を取得
-  useEffect(() => {
-    const fetchPatterns = async () => {
-      try {
-        const result = await patternsService.listPatterns({ sortBy: 'updatedAt', sortOrder: 'desc' })
-        setPatterns(result.patterns.filter((p) => p.status === 'active'))
-      } catch (error) {
-        console.error('型紙取得エラー:', error)
-      }
-    }
-    fetchPatterns()
-  }, [])
 
   // 編集モード時にデータをロード
   useEffect(() => {

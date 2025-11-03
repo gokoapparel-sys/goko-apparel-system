@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { fabricsService } from '../../services/fabricsService'
-import { Fabric } from '../../types'
 
 const FabricForm: React.FC = () => {
   const { id } = useParams<{ id: string }>()

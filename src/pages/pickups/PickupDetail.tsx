@@ -32,7 +32,7 @@ const PickupDetail: React.FC = () => {
 
         // アイテムデータを読み込み
         const { items: allItems } = await itemsService.listItems({ status: 'active' })
-        const selectedItems = allItems.filter((item) => data.itemIds.includes(item.id!))
+        const selectedItems = allItems.filter((item) => data.itemIds?.includes(item.id!))
         setItems(selectedItems)
       } else {
         alert('ピックアップリストが見つかりません')

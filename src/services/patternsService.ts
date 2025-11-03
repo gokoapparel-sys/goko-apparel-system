@@ -48,7 +48,6 @@ export const patternsService = {
       sortBy = 'updatedAt',
       sortOrder = 'desc',
       lastDoc,
-      firstDoc,
       direction = 'next',
     } = params
 
@@ -179,7 +178,7 @@ export const patternsService = {
       // まずファイルを削除
       const pattern = await this.getPattern(id)
       if (pattern && pattern.files) {
-        const fileTypes = ['pattern', 'spec', 'layout', 'data'] as const
+        const fileTypes = ['spec', 'layout', 'data'] as const
         for (const type of fileTypes) {
           const file = pattern.files[type]
           if (file?.fileUrl) {
@@ -213,7 +212,7 @@ export const patternsService = {
   async uploadFile(
     id: string,
     file: File,
-    fileType: 'pattern' | 'spec' | 'layout' | 'data'
+    fileType: 'spec' | 'layout' | 'data'
   ): Promise<void> {
     try {
       const pattern = await this.getPattern(id)
@@ -294,7 +293,7 @@ export const patternsService = {
   /**
    * ファイルを削除
    */
-  async removeFile(id: string, fileType: 'pattern' | 'spec' | 'layout' | 'data'): Promise<void> {
+  async removeFile(id: string, fileType: 'spec' | 'layout' | 'data'): Promise<void> {
     try {
       const pattern = await this.getPattern(id)
       if (!pattern) {

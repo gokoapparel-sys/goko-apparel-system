@@ -35,7 +35,7 @@ const FabricsList: React.FC = () => {
         sortOrder,
         lastDoc: direction === 'next' ? cursor : undefined,
         firstDoc: direction === 'prev' ? cursor : undefined,
-        direction,
+        direction: direction === 'refresh' ? undefined : direction,
       })
 
       setFabrics(result.fabrics)
@@ -77,26 +77,6 @@ const FabricsList: React.FC = () => {
       setCurrentPage((prev) => prev - 1)
       fetchFabrics('prev', firstDoc)
     }
-  }
-
-  // 日付フォーマット
-  const formatDate = (timestamp: any): string => {
-    if (!timestamp) return ''
-    let date: Date
-    if (timestamp.toDate) {
-      date = timestamp.toDate()
-    } else if (timestamp instanceof Date) {
-      date = timestamp
-    } else {
-      return ''
-    }
-    return date.toLocaleString('ja-JP', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
   }
 
   // ステータスバッジ

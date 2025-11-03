@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { exhibitionsService } from '../../services/exhibitionsService'
-import { Exhibition } from '../../types'
 import { Timestamp } from 'firebase/firestore'
 
 const ExhibitionForm: React.FC = () => {

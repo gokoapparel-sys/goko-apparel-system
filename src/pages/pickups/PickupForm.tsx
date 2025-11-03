@@ -138,7 +138,7 @@ const PickupForm: React.FC = () => {
         itemIds: formData.itemIds.length > 0 ? formData.itemIds : [],
         createdDate: Timestamp.now(),
         status: formData.status,
-        createdBy: currentUser.email,
+        createdBy: currentUser?.email || undefined,
       }
 
       console.log('ピックアップデータ:', pickupData)
@@ -207,7 +207,7 @@ const PickupForm: React.FC = () => {
 
             {/* 右側：ユーザー情報 */}
             <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-600 font-medium hidden sm:block">{currentUser.email}</span>
+              <span className="text-sm text-gray-600 font-medium hidden sm:block">{currentUser?.email}</span>
             </div>
           </div>
         </div>

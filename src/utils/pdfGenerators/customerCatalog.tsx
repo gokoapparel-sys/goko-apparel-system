@@ -207,7 +207,7 @@ interface CustomerCatalogPDFProps {
   sessionQRCode?: string // ピックアップセッション開始用QRコード（Data URL）
 }
 
-export const CustomerCatalogPDF: React.FC<CustomerCatalogPDFProps> = ({ exhibition, items, sessionQRCode }) => {
+export const CustomerCatalogPDF: React.FC<CustomerCatalogPDFProps> = ({ exhibition, items }) => {
   const formatDate = (timestamp: any): string => {
     if (!timestamp) return ''
     let date: Date

@@ -8,7 +8,8 @@
       "Bash(npm run dev:*)",
       "Bash(powershell -Command \"(Get-Content ''C:\\Users\\aja10\\Desktop\\goko_appalel-system\\src\\pages\\pickups\\PickupForm.tsx'') -replace ''border-primary-700'', ''border-emerald-600'' | Set-Content ''C:\\Users\\aja10\\Desktop\\goko_appalel-system\\src\\pages\\pickups\\PickupForm.tsx''\")",
       "Bash(powershell -Command:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

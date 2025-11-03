@@ -31,7 +31,7 @@ const PatternsList: React.FC = () => {
         sortOrder,
         lastDoc: direction === 'next' ? cursor : undefined,
         firstDoc: direction === 'prev' ? cursor : undefined,
-        direction,
+        direction: direction === 'refresh' ? undefined : direction,
       })
 
       setPatterns(result.patterns)
@@ -115,7 +115,6 @@ const PatternsList: React.FC = () => {
   // ファイル数をカウント
   const countFiles = (files: Pattern['files']): number => {
     let count = 0
-    if (files.pattern) count++
     if (files.spec) count++
     if (files.layout) count++
     if (files.data) count++
@@ -259,11 +258,6 @@ const PatternsList: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-xs space-y-1">
-                            {pattern.files.pattern && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-800 mr-1">
-                                型紙
-                              </span>
-                            )}
                             {pattern.files.spec && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-800 mr-1">
                                 仕様書
