@@ -173,7 +173,7 @@ const ItemsList: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                検索（名前、SKU）
+                検索（名前、アイテムNo.）
               </label>
               <input
                 id="search"
@@ -250,7 +250,7 @@ const ItemsList: React.FC = () => {
                         名前
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        SKU
+                        アイテムNo.
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         色/サイズ
