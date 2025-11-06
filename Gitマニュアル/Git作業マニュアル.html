@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git作業マニュアル - GOKO アパレル商品管理システム</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic Pro', 'メイリオ', 'MS PGothic', sans-serif;
+      line-height: 1.8;
+      color: #1e293b;
+      background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 50px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 36px;
+      color: #0f172a;
+      margin-bottom: 10px;
+      padding-bottom: 15px;
+      border-bottom: 4px solid #2563eb;
+    }
+
+    h2 {
+      font-size: 28px;
+      color: #1e40af;
+      margin-top: 50px;
+      margin-bottom: 20px;
+      padding-left: 15px;
+      border-left: 6px solid #3b82f6;
+    }
+
+    h3 {
+      font-size: 22px;
+      color: #1e40af;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    h3::before {
+      content: '▶';
+      position: absolute;
+      left: 10px;
+      color: #3b82f6;
+    }
+
+    h4 {
+      font-size: 18px;
+      color: #475569;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      padding-left: 20px;
+      background: #f1f5f9;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
+
+    p {
+      margin-bottom: 15px;
+      color: #334155;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .meta-info {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 30px;
+    }
+
+    .meta-info a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .meta-info a:hover {
+      text-decoration: underline;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px solid #e2e8f0;
+      margin: 40px 0;
+    }
+
+    .toc {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      padding: 25px;
+      border-radius: 8px;
+      margin: 30px 0;
+      border-left: 4px solid #0ea5e9;
+    }
+
+    .toc h2 {
+      margin-top: 0;
+      font-size: 22px;
+      color: #0c4a6e;
+      border: none;
+      padding: 0;
+    }
+
+    .toc ol {
+      margin-left: 25px;
+      margin-top: 15px;
+    }
+
+    .toc li {
+      margin-bottom: 8px;
+    }
+
+    .toc a {
+      color: #0369a1;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .info-box strong {
+      color: #0f172a;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    .command-result {
+      background: #ecfdf5;
+      border-left: 4px solid #10b981;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    .command-result strong {
+      color: #065f46;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .command-result ul {
+      margin-left: 20px;
+    }
+
+    .warning {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    .warning strong {
+      color: #92400e;
+    }
+
+    .error-box {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    .error-box strong {
+      color: #991b1b;
+    }
+
+    .success-box {
+      background: #dcfce7;
+      border-left: 4px solid #22c55e;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    thead {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: white;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: bold;
+      border: 1px solid #3b82f6;
+    }
+
+    td {
+      padding: 12px 15px;
+      border: 1px solid #e2e8f0;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    tbody tr:hover {
+      background: #f1f5f9;
+    }
+
+    ul, ol {
+      margin-left: 30px;
+      margin-bottom: 15px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .icon {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+
+    .quick-ref {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      padding: 25px;
+      border-radius: 8px;
+      margin: 30px 0;
+      border-left: 4px solid #f59e0b;
+    }
+
+    .quick-ref h3 {
+      color: #92400e;
+      padding-left: 0;
+    }
+
+    .quick-ref h3::before {
+      display: none;
+    }
+
+    .footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .container {
+        box-shadow: none;
+        padding: 20px;
+      }
+
+      h2 {
+        page-break-after: avoid;
+      }
+
+      pre, .info-box, .command-result, .warning, .error-box {
+        page-break-inside: avoid;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Git作業マニュアル</h1>
+    <div class="subtitle"><strong>GOKO アパレル商品管理システム</strong></div>
+    <div class="meta-info">
+      作成日：2025年11月3日<br>
+      GitHubリポジトリ：<a href="https://github.com/gokoapparel-sys/goko-apparel-system" target="_blank">https://github.com/gokoapparel-sys/goko-apparel-system</a>
+    </div>
+
+    <hr>
+
+    <div class="toc">
+      <h2>📚 目次</h2>
+      <ol>
+        <li><a href="#section1">このPCで作業をする場合</a></li>
+        <li><a href="#section2">別なPCで初めて作業をする場合</a></li>
+        <li><a href="#section3">別なPCで作業を再開する場合</a></li>
+        <li><a href="#section4">トラブルシューティング</a></li>
+        <li><a href="#section5">よく使うGitコマンド一覧</a></li>
+      </ol>
+    </div>
+
+    <h2 id="section1">1. このPCで作業をする場合</h2>
+
+    <h3>🖥️ 現在のPC情報</h3>
+    <div class="info-box">
+      <strong>プロジェクトフォルダ:</strong> <code>C:\Users\aja10\Desktop\goko_appalel-system</code><br>
+      <strong>GitHubアカウント:</strong> <code>gokoapparel-sys</code>
+    </div>
+
+    <h3>✅ 作業開始手順</h3>
+
+    <h4>ステップ1: フォルダに移動</h4>
+    <pre><code>cd "C:\Users\aja10\Desktop\goko_appalel-system"</code></pre>
+
+    <h4>ステップ2: 最新版を確認</h4>
+    <pre><code>git pull</code></pre>
+
+    <div class="command-result">
+      <strong>表示される結果：</strong>
+      <ul>
+        <li><code>Already up to date.</code> → 最新版です。そのまま作業開始OK</li>
+        <li>ファイル名が表示される → 他のPCでの変更がダウンロードされました</li>
+      </ul>
+    </div>
+
+    <h4>ステップ3: Claude Code起動（必要に応じて）</h4>
+    <pre><code>claude code .</code></pre>
+
+    <h4>ステップ4: 開発サーバー起動</h4>
+    <pre><code>npm run dev</code></pre>
+    <p>ブラウザで <strong>http://localhost:5179</strong> にアクセス</p>
+
+    <hr>
+
+    <h3>💾 作業終了手順</h3>
+
+    <h4>ステップ1: 変更を確認</h4>
+    <pre><code>git status</code></pre>
+
+    <h4>ステップ2: 変更をステージング</h4>
+    <pre><code>git add .</code></pre>
+
+    <h4>ステップ3: コミット（変更を記録）</h4>
+    <pre><code>git commit -m "変更内容の説明（例：画像削除機能を追加）"</code></pre>
+
+    <h4>ステップ4: GitHubにアップロード</h4>
+    <pre><code>git push</code></pre>
+
+    <div class="warning">
+      <strong>⚠️ 重要:</strong> <code>git push</code> を忘れると、他のPCに変更が反映されません！
+    </div>
+
+    <hr>
+
+    <h2 id="section2">2. 別なPCで初めて作業をする場合</h2>
+
+    <h3>🆕 初回セットアップ（1回だけ）</h3>
+
+    <h4>前提条件の確認</h4>
+    <p>以下がインストールされているか確認：</p>
+
+    <pre><code># Gitの確認
+git --version
+
+# Node.jsの確認
+node --version
+
+# npmの確認
+npm --version
+
+# Claude Code CLIの確認
+claude --version</code></pre>
+
+    <div class="warning">
+      <strong>注意:</strong> どれかがエラーになる場合は、先にインストールが必要です。
+    </div>
+
+    <h4>ステップ1: 作業場所に移動</h4>
+
+    <p><strong>方法1（推奨）: 環境変数を使う</strong></p>
+    <pre><code>cd $env:USERPROFILE\Desktop</code></pre>
+
+    <p><strong>方法2: ユーザー名を指定</strong></p>
+    <pre><code>cd C:\Users\[ユーザー名]\Desktop</code></pre>
+
+    <p><strong>ユーザー名がわからない場合：</strong></p>
+    <pre><code>echo $env:USERNAME</code></pre>
+
+    <p><strong>ユーザー名にスペースや日本語が含まれる場合：</strong></p>
+    <pre><code>cd "C:\Users\山田 太郎\Desktop"</code></pre>
+
+    <h4>ステップ2: プロジェクトをダウンロード（クローン）</h4>
+    <pre><code>git clone https://github.com/gokoapparel-sys/goko-apparel-system.git</code></pre>
+
+    <div class="info-box">
+      <strong>初回のみGitHub認証が必要：</strong>
+      <ol>
+        <li>ブラウザが自動起動</li>
+        <li>GitHubにサインイン
+          <ul>
+            <li>ユーザー名: <code>gokoapparel-sys</code></li>
+            <li>パスワードを入力</li>
+          </ul>
+        </li>
+        <li>Git Credential Manager の承認ボタンをクリック</li>
+        <li>"Authentication Succeeded" と表示されればOK</li>
+      </ol>
+    </div>
+
+    <h4>ステップ3: フォルダに移動</h4>
+    <pre><code>cd goko-apparel-system</code></pre>
+
+    <h4>ステップ4: パッケージをインストール</h4>
+    <pre><code>npm install</code></pre>
+    <p><strong>実行時間:</strong> 数分かかります。完了まで待ちましょう。</p>
+
+    <h4>ステップ5: 環境設定ファイルを作成</h4>
+    <div class="warning">
+      <strong>重要:</strong> <code>.env</code> ファイルは <code>.gitignore</code> に含まれているため、手動で作成が必要です。
+    </div>
+    <p>元のPCから <code>.env</code> ファイルの内容をコピーして、新しいPCで作成してください。</p>
+    <pre><code>VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...</code></pre>
+
+    <h4>ステップ6: Claude Code起動</h4>
+    <pre><code>claude code .</code></pre>
+
+    <h4>ステップ7: 開発サーバー起動</h4>
+    <pre><code>npm run dev</code></pre>
+    <p>ブラウザで <strong>http://localhost:5179</strong> にアクセス</p>
+
+    <div class="success-box">
+      <strong>✅ 初回セットアップ完了！</strong><br>
+      これで新しいPCでも作業ができるようになりました。
+    </div>
+
+    <hr>
+
+    <h2 id="section3">3. 別なPCで作業を再開する場合</h2>
+
+    <h3>🔄 2回目以降の作業開始</h3>
+
+    <h4>ステップ1: フォルダに移動</h4>
+    <pre><code>cd $env:USERPROFILE\Desktop\goko-apparel-system</code></pre>
+    <p><strong>または（ユーザー名を指定）：</strong></p>
+    <pre><code>cd C:\Users\[ユーザー名]\Desktop\goko-apparel-system</code></pre>
+
+    <h4>ステップ2: 最新版を取得</h4>
+    <pre><code>git pull</code></pre>
+
+    <div class="command-result">
+      <strong>表示される結果：</strong>
+      <ul>
+        <li><code>Already up to date.</code> → 変更なし</li>
+        <li>ファイル名が表示される → 他のPCでの変更がダウンロードされました</li>
+      </ul>
+    </div>
+
+    <h4>ステップ3: Claude Code起動（必要に応じて）</h4>
+    <pre><code>claude code .</code></pre>
+
+    <h4>ステップ4: 開発サーバー起動</h4>
+    <pre><code>npm run dev</code></pre>
+
+    <h3>💾 作業終了手順</h3>
+    <p><strong>このPCの場合と同じです：</strong></p>
+    <pre><code># 1. 変更を確認
+git status
+
+# 2. 変更をステージング
+git add .
+
+# 3. コミット
+git commit -m "変更内容の説明"
+
+# 4. GitHubにアップロード
+git push</code></pre>
+
+    <hr>
+
+    <h2 id="section4">4. トラブルシューティング</h2>
+
+    <h3>❌ エラー: <code>git: command not found</code></h3>
+    <div class="error-box">
+      <strong>原因:</strong> Gitがインストールされていない<br>
+      <strong>解決策:</strong> <a href="https://git-scm.com/" target="_blank">https://git-scm.com/</a> からGitをダウンロードしてインストール
+    </div>
+
+    <h3>❌ エラー: <code>Permission denied</code></h3>
+    <div class="error-box">
+      <strong>原因:</strong> GitHub認証が失敗している<br>
+      <strong>解決策:</strong>
+      <pre><code># 認証情報をクリアして再認証
+git credential reject
+# その後、git pull または git push を実行</code></pre>
+    </div>
+
+    <h3>❌ エラー: <code>Your local changes would be overwritten</code></h3>
+    <div class="error-box">
+      <strong>原因:</strong> ローカルに未保存の変更がある状態で <code>git pull</code> を実行
+    </div>
+    <p><strong>解決策1（変更を保存する場合）:</strong></p>
+    <pre><code>git stash        # 変更を一時退避
+git pull         # 最新版を取得
+git stash pop    # 退避した変更を戻す</code></pre>
+
+    <p><strong>解決策2（変更を破棄する場合）:</strong></p>
+    <pre><code>git reset --hard HEAD    # すべての変更を破棄
+git pull                 # 最新版を取得</code></pre>
+
+    <h3>❌ エラー: <code>npm install</code> が失敗する</h3>
+    <div class="error-box">
+      <strong>原因:</strong> Node.jsのバージョンが古い、またはネットワークエラー<br>
+      <strong>解決策:</strong>
+      <pre><code># Node.jsのバージョンを確認
+node --version
+
+# 18以上が必要です。古い場合は https://nodejs.org/ から最新版をインストール
+
+# キャッシュをクリアして再試行
+npm cache clean --force
+npm install</code></pre>
+    </div>
+
+    <h3>❌ エラー: <code>port 5179 is already in use</code></h3>
+    <div class="error-box">
+      <strong>原因:</strong> 開発サーバーがすでに起動している<br>
+      <strong>解決策:</strong>
+      <pre><code># プロセスを確認
+netstat -ano | findstr :5179
+
+# 該当プロセスを終了
+taskkill /F /PID [プロセスID]
+
+# または、別のターミナルを閉じる</code></pre>
+    </div>
+
+    <hr>
+
+    <h2 id="section5">5. よく使うGitコマンド一覧</h2>
+
+    <h3>📖 基本コマンド</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>コマンド</th>
+          <th>説明</th>
+          <th>使用例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>git status</code></td>
+          <td>現在の状態を確認</td>
+          <td>いつでも</td>
+        </tr>
+        <tr>
+          <td><code>git pull</code></td>
+          <td>GitHubから最新版を取得</td>
+          <td>作業開始時</td>
+        </tr>
+        <tr>
+          <td><code>git add .</code></td>
+          <td>すべての変更をステージング</td>
+          <td>コミット前</td>
+        </tr>
+        <tr>
+          <td><code>git commit -m "メッセージ"</code></td>
+          <td>変更を記録</td>
+          <td>作業終了時</td>
+        </tr>
+        <tr>
+          <td><code>git push</code></td>
+          <td>GitHubにアップロード</td>
+          <td>作業終了時</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>🔍 確認コマンド</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>コマンド</th>
+          <th>説明</th>
+          <th>使用例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>git log --oneline -5</code></td>
+          <td>最近の5件のコミット履歴</td>
+          <td>履歴確認</td>
+        </tr>
+        <tr>
+          <td><code>git diff</code></td>
+          <td>変更内容を表示</td>
+          <td>コミット前の確認</td>
+        </tr>
+        <tr>
+          <td><code>git branch</code></td>
+          <td>ブランチ一覧</td>
+          <td>現在のブランチ確認</td>
+        </tr>
+        <tr>
+          <td><code>git remote -v</code></td>
+          <td>リモートリポジトリURL確認</td>
+          <td>接続先確認</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>🛠️ 便利コマンド</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>コマンド</th>
+          <th>説明</th>
+          <th>使用例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>git stash</code></td>
+          <td>変更を一時退避</td>
+          <td>未保存の変更があるとき</td>
+        </tr>
+        <tr>
+          <td><code>git stash pop</code></td>
+          <td>退避した変更を戻す</td>
+          <td>退避後</td>
+        </tr>
+        <tr>
+          <td><code>git reset --hard HEAD</code></td>
+          <td>すべての変更を破棄</td>
+          <td>やり直したいとき</td>
+        </tr>
+        <tr>
+          <td><code>git checkout main</code></td>
+          <td>mainブランチに切り替え</td>
+          <td>ブランチ移動</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <div class="quick-ref">
+      <h3>📋 クイックリファレンス</h3>
+
+      <h4>このPCで作業</h4>
+      <pre><code>cd "C:\Users\aja10\Desktop\goko_appalel-system"
+git pull
+claude code .
+npm run dev</code></pre>
+
+      <h4>別なPC（初回）</h4>
+      <pre><code>cd $env:USERPROFILE\Desktop
+git clone https://github.com/gokoapparel-sys/goko-apparel-system.git
+cd goko-apparel-system
+npm install
+claude code .
+npm run dev</code></pre>
+
+      <h4>別なPC（2回目以降）</h4>
+      <pre><code>cd $env:USERPROFILE\Desktop\goko-apparel-system
+git pull
+claude code .
+npm run dev</code></pre>
+
+      <h4>作業終了</h4>
+      <pre><code>git add .
+git commit -m "変更内容"
+git push</code></pre>
+    </div>
+
+    <hr>
+
+    <h2>📞 サポート情報</h2>
+
+    <div class="info-box">
+      <strong>GitHubリポジトリ:</strong><br>
+      <a href="https://github.com/gokoapparel-sys/goko-apparel-system" target="_blank">https://github.com/gokoapparel-sys/goko-apparel-system</a>
+      <br><br>
+      <strong>GitHubアカウント:</strong><br>
+      ユーザー名: <code>gokoapparel-sys</code><br>
+      用途: すべてのPCで同じアカウントを使用
+      <br><br>
+      <strong>注意事項:</strong>
+      <ul>
+        <li><code>.env</code> ファイルは各PCで手動作成が必要</li>
+        <li><code>node_modules</code> は各PCで <code>npm install</code> が必要</li>
+        <li>作業終了時は必ず <code>git push</code> を実行</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <strong>最終更新:</strong> 2025年11月3日<br>
+      <strong>作成者:</strong> Claude (AI Assistant)
+    </div>
+  </div>
+</body>
+</html>
