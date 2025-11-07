@@ -319,9 +319,16 @@ const ItemsList: React.FC = () => {
                         <td className="px-6 py-4">
                           <div className="text-xs text-gray-600">
                             {item.patternId && patterns.has(item.patternId) ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation() // 行クリックイベントを止める
+                                  navigate(`/patterns/${item.patternId}/detail`)
+                                }}
+                                className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors cursor-pointer"
+                                title="型紙詳細を見る"
+                              >
                                 {patterns.get(item.patternId)?.patternCode}
-                              </span>
+                              </button>
                             ) : (
                               <span className="text-gray-400">未設定</span>
                             )}

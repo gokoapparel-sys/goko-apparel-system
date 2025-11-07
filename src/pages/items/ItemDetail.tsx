@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { itemsService } from '../../services/itemsService'
 import { patternsService } from '../../services/patternsService'
 import { Item, Pattern } from '../../types'
+import JSZip from 'jszip'
 
 const ItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -65,6 +66,65 @@ const ItemDetail: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit',
     })
+  }
+
+  // 型紙ファイルを一括ダウンロード（ZIP）
+  const handleDownloadAllPatternFiles = async () => {
+    if (!pattern) return
+
+    try {
+      const zip = new JSZip()
+      const promises: Promise<void>[] = []
+
+      // 仕様書を追加
+      if (pattern.files?.spec) {
+        const promise = fetch(pattern.files.spec.fileUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            zip.file(pattern.files.spec!.fileName, blob)
+          })
+        promises.push(promise)
+      }
+
+      // 展開図を追加
+      if (pattern.files?.layout) {
+        const promise = fetch(pattern.files.layout.fileUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            zip.file(pattern.files.layout!.fileName, blob)
+          })
+        promises.push(promise)
+      }
+
+      // 型紙データを追加
+      if (pattern.files?.data) {
+        const promise = fetch(pattern.files.data.fileUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            zip.file(pattern.files.data!.fileName, blob)
+          })
+        promises.push(promise)
+      }
+
+      // すべてのファイルを取得
+      await Promise.all(promises)
+
+      // ZIPファイルを生成してダウンロード
+      const content = await zip.generateAsync({ type: 'blob' })
+      const url = URL.createObjectURL(content)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${pattern.patternCode}_${item?.itemNo || 'files'}.zip`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      alert('型紙ファイルをダウンロードしました')
+    } catch (error) {
+      console.error('ダウンロードエラー:', error)
+      alert('ダウンロードに失敗しました')
+    }
   }
 
   if (loading) {
@@ -179,17 +239,82 @@ const ItemDetail: React.FC = () => {
                 </p>
               </div>
 
-              <div>
-                <p className="text-sm text-gray-600">型紙</p>
+              <div className="md:col-span-2">
+                <p className="text-sm text-gray-600 mb-2">型紙</p>
                 {pattern ? (
-                  <p className="text-lg font-semibold text-gray-900">
-                    <button
-                      onClick={() => navigate(`/patterns/${pattern.id}/detail`)}
-                      className="text-purple-700 hover:text-purple-900 hover:underline"
-                    >
-                      {pattern.patternCode} - {pattern.patternName}
-                    </button>
-                  </p>
+                  <div>
+                    <p className="text-lg font-semibold text-gray-900 mb-3">
+                      <button
+                        onClick={() => navigate(`/patterns/${pattern.id}/detail`)}
+                        className="text-purple-700 hover:text-purple-900 hover:underline"
+                      >
+                        {pattern.patternCode} - {pattern.patternName}
+                      </button>
+                    </p>
+                    {/* 型紙ファイルダウンロード */}
+                    <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">型紙ファイル:</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        {/* 仕様書 */}
+                        {pattern.files?.spec ? (
+                          <a
+                            href={pattern.files.spec.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            📄 仕様書
+                          </a>
+                        ) : (
+                          <div className="inline-flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
+                            📄 仕様書（未登録）
+                          </div>
+                        )}
+
+                        {/* 展開図 */}
+                        {pattern.files?.layout ? (
+                          <a
+                            href={pattern.files.layout.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            📐 展開図
+                          </a>
+                        ) : (
+                          <div className="inline-flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
+                            📐 展開図（未登録）
+                          </div>
+                        )}
+
+                        {/* 型紙データ */}
+                        {pattern.files?.data ? (
+                          <a
+                            href={pattern.files.data.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                          >
+                            📦 型紙データ
+                          </a>
+                        ) : (
+                          <div className="inline-flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
+                            📦 型紙データ（未登録）
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 一括ダウンロードボタン */}
+                      {(pattern.files?.spec || pattern.files?.layout || pattern.files?.data) && (
+                        <button
+                          onClick={() => handleDownloadAllPatternFiles()}
+                          className="w-full mt-3 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-lg"
+                        >
+                          📥 すべてまとめてダウンロード（ZIP）
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   <p className="text-lg font-semibold text-gray-400">未設定</p>
                 )}

@@ -112,7 +112,9 @@ const StaffWebCatalog: React.FC = () => {
       setSubmitting(true)
 
       // ピックアップリストを取得または新規作成
-      let pickup = pickups.find(p => p.pickupCode === pickupCode && p.exhibitionId === id)
+      let pickup = selectedPickupId
+        ? pickups.find(p => p.id === selectedPickupId)
+        : pickups.find(p => p.pickupCode === pickupCode && p.exhibitionId === id)
       let pickupId = pickup?.id
 
       if (!pickup) {
@@ -131,6 +133,9 @@ const StaffWebCatalog: React.FC = () => {
         // リストを再読み込み
         const updatedPickupsResult = await pickupsService.listPickups({ exhibitionId: id! })
         setPickups(updatedPickupsResult.pickups)
+
+        // 新規作成したピックアップを取得
+        pickup = updatedPickupsResult.pickups.find(p => p.id === pickupId)
       }
 
       // 既存のアイテムIDと結合
@@ -139,20 +144,35 @@ const StaffWebCatalog: React.FC = () => {
       const mergedItemIds = [...new Set([...existingItemIds, ...newItemIds])]
 
       // ピックアップリストを更新
-      await pickupsService.updatePickup(pickupId!, {
+      if (!pickupId) {
+        throw new Error('ピックアップIDが取得できませんでした')
+      }
+
+      await pickupsService.updatePickup(pickupId, {
         itemIds: mergedItemIds
       })
 
-      alert(`${newItemIds.length}件のアイテムを追加しました`)
-      setSelectedItemIds(new Set())
-      setManualPickupCode('')
-      setSelectedPickupId('')
+      // 成功メッセージを表示
+      const addedCount = newItemIds.length
+
+      // 送信状態を解除
+      setSubmitting(false)
+
+      // UIの更新を待ってからアラートを表示
+      setTimeout(() => {
+        alert(`${addedCount}件のアイテムを追加しました`)
+        // アラート後に状態をクリア
+        setSelectedItemIds(new Set())
+        setManualPickupCode('')
+        setSelectedPickupId('')
+      }, 100)
 
     } catch (error) {
       console.error('送信エラー:', error)
-      alert('送信に失敗しました')
-    } finally {
       setSubmitting(false)
+      setTimeout(() => {
+        alert('送信に失敗しました: ' + (error instanceof Error ? error.message : String(error)))
+      }, 100)
     }
   }
 

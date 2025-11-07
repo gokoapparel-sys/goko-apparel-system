@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { itemsService } from '../../services/itemsService'
+import { patternsService } from '../../services/patternsService'
+import { Pattern } from '../../types'
 
 const ItemForm: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -32,10 +34,15 @@ const ItemForm: React.FC = () => {
   const [existingImages, setExistingImages] = useState<{ url: string; path: string }[]>([])
   const [newImages, setNewImages] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [patterns, setPatterns] = useState<Pattern[]>([])
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
+  // 型紙一覧を読み込み
+  useEffect(() => {
+    loadPatterns()
+  }, [])
 
   // 編集モード時にデータをロード
   useEffect(() => {
@@ -43,6 +50,17 @@ const ItemForm: React.FC = () => {
       loadItem(id)
     }
   }, [id, isEditMode])
+
+  const loadPatterns = async () => {
+    try {
+      const { patterns: patternsList } = await patternsService.listPatterns()
+      // activeステータスの型紙のみフィルタリング
+      const activePatterns = patternsList.filter(p => p.status === 'active')
+      setPatterns(activePatterns)
+    } catch (error) {
+      console.error('型紙一覧読み込みエラー:', error)
+    }
+  }
 
   const loadItem = async (itemId: string) => {
     try {
@@ -84,10 +102,22 @@ const ItemForm: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     const numericFields = ['dollarPrice', 'referencePrice']
-    setFormData((prev) => ({
-      ...prev,
-      [name]: numericFields.includes(name) ? parseFloat(value) || 0 : value,
-    }))
+
+    // 型紙選択の場合、patternIdとpatternNoを自動設定
+    if (name === 'patternId') {
+      const selectedPattern = patterns.find(p => p.id === value)
+      setFormData((prev) => ({
+        ...prev,
+        patternId: value,
+        patternNo: selectedPattern?.patternCode || '',
+      }))
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: numericFields.includes(name) ? parseFloat(value) || 0 : value,
+      }))
+    }
+
     // エラーをクリア
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }))
@@ -417,24 +447,34 @@ const ItemForm: React.FC = () => {
                 />
               </div>
 
-              {/* 型紙No. */}
+              {/* 型紙選択 */}
               <div>
-                <label htmlFor="patternNo" className="block text-sm font-medium text-gray-700 mb-1">
-                  型紙No.
+                <label htmlFor="patternId" className="block text-sm font-medium text-gray-700 mb-1">
+                  型紙
                 </label>
-                <input
-                  id="patternNo"
-                  name="patternNo"
-                  type="text"
-                  value={formData.patternNo}
+                <select
+                  id="patternId"
+                  name="patternId"
+                  value={formData.patternId}
                   onChange={handleChange}
-                  placeholder="例: PT-001"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                   disabled={submitting}
-                />
+                >
+                  <option value="">型紙を選択してください</option>
+                  {patterns.map((pattern) => (
+                    <option key={pattern.id} value={pattern.id}>
+                      {pattern.patternCode} - {pattern.patternName}
+                    </option>
+                  ))}
+                </select>
                 <p className="mt-1 text-xs text-gray-500">
-                  型紙No.を入力すると、該当する型紙と紐づけられます
+                  型紙を選択すると、自動的に型紙No.が設定されます
                 </p>
+                {formData.patternNo && (
+                  <p className="mt-1 text-xs text-emerald-600">
+                    選択中の型紙No.: {formData.patternNo}
+                  </p>
+                )}
               </div>
 
               {/* ステータス */}
