@@ -29,6 +29,7 @@ const ItemForm: React.FC = () => {
     status: 'active' as 'active' | 'archived',
     patternId: '',
     patternNo: '',
+    createdBy: '',
   })
 
   const [existingImages, setExistingImages] = useState<{ url: string; path: string }[]>([])
@@ -84,6 +85,7 @@ const ItemForm: React.FC = () => {
           status: item.status,
           patternId: item.patternId || '',
           patternNo: item.patternNo || '',
+          createdBy: item.createdBy || '',
         })
         setExistingImages(item.images || [])
       } else {
@@ -190,6 +192,9 @@ const ItemForm: React.FC = () => {
     if (!formData.name.trim()) {
       newErrors.name = '名前は必須です'
     }
+    if (!formData.createdBy.trim()) {
+      newErrors.createdBy = '入力者は必須です'
+    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -226,10 +231,7 @@ const ItemForm: React.FC = () => {
         navigate('/items')
       } else {
         // 新規作成
-        const itemId = await itemsService.createItem({
-          ...itemData,
-          createdBy: currentUser?.email || currentUser?.uid,
-        })
+        const itemId = await itemsService.createItem(itemData)
 
         // 画像をアップロード
         if (newImages.length > 0) {
@@ -528,6 +530,32 @@ const ItemForm: React.FC = () => {
                   disabled={submitting}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* 入力者 */}
+          <div className="mt-8 pt-8 border-t">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">入力者情報</h2>
+            <div>
+              <label htmlFor="createdBy" className="block text-sm font-medium text-gray-700 mb-1">
+                入力者 <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="createdBy"
+                name="createdBy"
+                type="text"
+                value={formData.createdBy}
+                onChange={handleChange}
+                placeholder="例: tanaka@company.co.jp"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                  errors.createdBy ? 'border-red-500' : 'border-gray-300'
+                }`}
+                disabled={submitting}
+              />
+              {errors.createdBy && <p className="mt-1 text-sm text-red-500">{errors.createdBy}</p>}
+              <p className="mt-1 text-xs text-gray-500">
+                ※必須：社内メールアドレスを入力してください。分類しない場合は『free』と入力してください
+              </p>
             </div>
           </div>
 

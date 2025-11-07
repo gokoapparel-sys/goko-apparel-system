@@ -15,6 +15,7 @@ const ItemsList: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [createdByFilter, setCreatedByFilter] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null)
   const [firstDoc, setFirstDoc] = useState<QueryDocumentSnapshot | null>(null)
@@ -38,7 +39,15 @@ const ItemsList: React.FC = () => {
         direction: direction === 'refresh' ? undefined : direction,
       })
 
-      setItems(result.items)
+      // 入力者フィルターを適用
+      let filteredItems = result.items
+      if (createdByFilter.trim()) {
+        filteredItems = result.items.filter(item =>
+          item.createdBy?.toLowerCase().includes(createdByFilter.toLowerCase())
+        )
+      }
+
+      setItems(filteredItems)
       setLastDoc(result.lastDoc)
       setFirstDoc(result.firstDoc)
       setHasMore(result.hasMore)
@@ -185,6 +194,20 @@ const ItemsList: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
+            <div className="flex-1">
+              <label htmlFor="createdByFilter" className="block text-sm font-medium text-gray-700 mb-1">
+                入力者で絞り込み
+              </label>
+              <input
+                id="createdByFilter"
+                type="text"
+                value={createdByFilter}
+                onChange={(e) => setCreatedByFilter(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="例: tanaka@company.co.jp"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
             <div className="w-full md:w-48">
               <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
                 並び替え
@@ -253,13 +276,13 @@ const ItemsList: React.FC = () => {
                         アイテムNo.
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        色/サイズ
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        価格
+                        生地No.
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         型紙
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        入力者
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         ステータス
@@ -303,18 +326,7 @@ const ItemsList: React.FC = () => {
                           <div className="text-sm text-gray-600">{item.sku}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-600">
-                            {item.color && item.size
-                              ? `${item.color} / ${item.size}`
-                              : item.color || item.size || '-'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">
-                            {typeof item.price === 'number' && Number.isFinite(item.price)
-                              ? `¥${item.price.toLocaleString()}`
-                              : '—'}
-                          </div>
+                          <div className="text-sm text-gray-600">{item.fabricNo || '-'}</div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-xs text-gray-600">
@@ -332,6 +344,11 @@ const ItemsList: React.FC = () => {
                             ) : (
                               <span className="text-gray-400">未設定</span>
                             )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-600">
+                            {item.createdBy || <span className="text-gray-400">-</span>}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(item.status ?? 'active')}</td>

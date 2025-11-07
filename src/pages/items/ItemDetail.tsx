@@ -239,6 +239,11 @@ const ItemDetail: React.FC = () => {
                 </p>
               </div>
 
+              <div>
+                <p className="text-sm text-gray-600">入力者</p>
+                <p className="text-lg font-semibold text-gray-900">{item.createdBy || '-'}</p>
+              </div>
+
               <div className="md:col-span-2">
                 <p className="text-sm text-gray-600 mb-2">型紙</p>
                 {pattern ? (

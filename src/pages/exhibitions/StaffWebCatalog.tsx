@@ -14,10 +14,12 @@ const StaffWebCatalog: React.FC = () => {
 
   const [exhibition, setExhibition] = useState<Exhibition | null>(null)
   const [items, setItems] = useState<Item[]>([])
+  const [filteredItems, setFilteredItems] = useState<Item[]>([])
   const [pickups, setPickups] = useState<Pickup[]>([])
   const [selectedPickupId, setSelectedPickupId] = useState<string>('')
   const [manualPickupCode, setManualPickupCode] = useState<string>('')
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set())
+  const [createdByFilter, setCreatedByFilter] = useState<string>('')
   const [sessionQR, setSessionQR] = useState<string>('')
   const [itemQRs, setItemQRs] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
@@ -39,6 +41,15 @@ const StaffWebCatalog: React.FC = () => {
       setSelectedItemIds(new Set())
     }
   }, [selectedPickupId, pickups])
+
+  // 入力者フィルターでアイテムを絞り込み
+  useEffect(() => {
+    if (createdByFilter) {
+      setFilteredItems(items.filter(item => item.createdBy === createdByFilter))
+    } else {
+      setFilteredItems(items)
+    }
+  }, [createdByFilter, items])
 
   const loadData = async () => {
     if (!id) return
@@ -279,6 +290,20 @@ const StaffWebCatalog: React.FC = () => {
             }}
           />
 
+          <label htmlFor="createdBy-filter">入力者で絞り込み:</label>
+          <select
+            id="createdBy-filter"
+            value={createdByFilter}
+            onChange={(e) => setCreatedByFilter(e.target.value)}
+          >
+            <option value="">すべて表示</option>
+            {[...new Set(items.map(item => item.createdBy).filter(Boolean))].map(createdBy => (
+              <option key={createdBy} value={createdBy}>
+                {createdBy}
+              </option>
+            ))}
+          </select>
+
           <button
             className="submit-btn"
             onClick={handleSubmit}
@@ -308,7 +333,7 @@ const StaffWebCatalog: React.FC = () => {
             </p>
           </div>
         ) : null}
-        {items.map(item => (
+        {filteredItems.map(item => (
           <div key={item.id} className="item-card">
             <div className="item-checkbox no-print">
               <input

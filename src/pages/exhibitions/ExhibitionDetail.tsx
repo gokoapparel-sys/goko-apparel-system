@@ -22,6 +22,7 @@ const ExhibitionDetail: React.FC = () => {
   const [allItems, setAllItems] = useState<Item[]>([])
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const [createdByFilter, setCreatedByFilter] = useState('')
   const [savingCatalog, setSavingCatalog] = useState(false)
 
   useEffect(() => {
@@ -431,54 +432,53 @@ const ExhibitionDetail: React.FC = () => {
           {/* カタログアイテム */}
           <div className="mt-8 pt-8 border-t">
             <div className="mb-4">
-              <div className="flex justify-between items-center mb-3">
+              {/* 1段目：タイトルと保存ボタン（左寄せ） */}
+              <div className="flex items-center gap-3 mb-3">
                 <h2 className="text-lg font-bold text-gray-900">カタログアイテム</h2>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={handleSaveCatalog}
-                    disabled={savingCatalog}
-                    className="btn-primary"
-                  >
-                    {savingCatalog ? '保存中...' : 'カタログを保存'}
-                  </button>
-                  <button
-                    onClick={handleExportTagLabelPDF}
-                    disabled={selectedItemIds.length === 0}
-                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white font-bold rounded-lg hover:from-cyan-700 hover:to-cyan-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    下げ札ダウンロード
-                  </button>
-                </div>
+                <button
+                  onClick={handleSaveCatalog}
+                  disabled={savingCatalog}
+                  className="inline-flex items-center px-6 py-2 bg-cyan-50 text-emerald-700 font-bold rounded-lg hover:bg-cyan-100 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {savingCatalog ? '保存中...' : 'カタログを保存'}
+                </button>
               </div>
-              <div className="flex justify-end">
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={handleExportStaffPDF}
-                    disabled={selectedItemIds.length === 0}
-                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white font-bold rounded-lg hover:from-slate-700 hover:to-slate-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    管理者用PDF出力
-                  </button>
-                  <button
-                    onClick={handleExportCustomerPDF}
-                    disabled={selectedItemIds.length === 0}
-                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    お客様用PDF出力
-                  </button>
-                  <button
-                    onClick={() => navigate(`/exhibitions/${id}/staff-catalog`)}
-                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-lg"
-                  >
-                    管理者用WEBカタログ
-                  </button>
-                  <button
-                    onClick={() => navigate(`/exhibitions/${id}/customer-catalog`)}
-                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-sky-600 to-sky-700 text-white font-bold rounded-lg hover:from-sky-700 hover:to-sky-800 transition-all shadow-lg"
-                  >
-                    お客様用WEBカタログ
-                  </button>
-                </div>
+
+              {/* 2段目：アクションボタン（右詰め） */}
+              <div className="flex flex-wrap gap-2 justify-end">
+                <button
+                  onClick={() => navigate(`/exhibitions/${id}/staff-catalog`)}
+                  className="inline-flex items-center px-5 py-2.5 bg-blue-900 text-amber-100 font-medium rounded-lg hover:bg-blue-950 transition-all shadow-sm"
+                >
+                  管理者用WEBカタログ
+                </button>
+                <button
+                  onClick={handleExportStaffPDF}
+                  disabled={selectedItemIds.length === 0}
+                  className="inline-flex items-center px-5 py-2.5 bg-blue-900 text-white font-medium rounded-lg hover:bg-blue-950 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  管理者用PDF出力
+                </button>
+                <button
+                  onClick={() => navigate(`/exhibitions/${id}/customer-catalog`)}
+                  className="inline-flex items-center px-5 py-2.5 bg-teal-700 text-amber-100 font-medium rounded-lg hover:bg-teal-800 transition-all shadow-sm"
+                >
+                  お客様用WEBカタログ
+                </button>
+                <button
+                  onClick={handleExportCustomerPDF}
+                  disabled={selectedItemIds.length === 0}
+                  className="inline-flex items-center px-5 py-2.5 bg-teal-700 text-white font-medium rounded-lg hover:bg-teal-800 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  お客様用PDF出力
+                </button>
+                <button
+                  onClick={handleExportTagLabelPDF}
+                  disabled={selectedItemIds.length === 0}
+                  className="inline-flex items-center px-5 py-2.5 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  下げ札ダウンロード
+                </button>
               </div>
             </div>
 
@@ -486,13 +486,27 @@ const ExhibitionDetail: React.FC = () => {
               <p className="text-sm text-gray-600 mb-2">
                 選択済み: {selectedItemIds.length} 件
               </p>
-              <input
-                type="text"
-                placeholder="品番またはアイテム名で検索..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  placeholder="品番またはアイテム名で検索..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-[2] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <select
+                  value={createdByFilter}
+                  onChange={(e) => setCreatedByFilter(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">入力者：絞り込み</option>
+                  {[...new Set(allItems.map(item => item.createdBy).filter(Boolean))].map(createdBy => (
+                    <option key={createdBy} value={createdBy}>
+                      {createdBy}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -526,8 +540,9 @@ const ExhibitionDetail: React.FC = () => {
                   {allItems
                     .filter(
                       (item) =>
-                        item.itemNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                        (item.itemNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+                        (createdByFilter === '' || item.createdBy === createdByFilter)
                     )
                     .map((item) => (
                       <tr

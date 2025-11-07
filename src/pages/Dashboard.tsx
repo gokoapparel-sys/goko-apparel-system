@@ -54,12 +54,12 @@ const Dashboard: React.FC = () => {
             <p className="text-slate-200 text-xs">商品情報の登録・編集・検索</p>
           </div>
 
-          {/* 展示会カタログ */}
+          {/* 展示会管理 */}
           <div
             onClick={() => navigate('/exhibitions')}
             className="relative overflow-hidden rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 p-4 cursor-pointer transition-all duration-200 hover:shadow-xl hover:scale-[1.02] border border-slate-500"
           >
-            <h2 className="text-lg font-bold text-cyan-300 mb-1">展示会カタログ</h2>
+            <h2 className="text-lg font-bold text-cyan-300 mb-1">展示会管理</h2>
             <p className="text-slate-200 text-xs">展示会の管理とカタログ作成</p>
           </div>
 

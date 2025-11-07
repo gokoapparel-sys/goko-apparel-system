@@ -85,7 +85,7 @@ const ExhibitionsList: React.FC = () => {
           <div className="flex justify-between items-center h-20">
             {/* 左側：タイトルと新規作成 */}
             <div className="flex items-center space-x-6">
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">展示会カタログ管理</h1>
+              <h1 className="text-2xl font-black text-gray-900 tracking-tight">展示会管理</h1>
               <button
                 onClick={() => navigate('/exhibitions/new')}
                 className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500"
