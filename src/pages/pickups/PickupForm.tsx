@@ -56,9 +56,9 @@ const PickupForm: React.FC = () => {
             status: pickup.status,
           })
 
-          // 展示会のカタログアイテムを読み込み
+          // 展示会のカタログアイテムを読み込み（itemsDataを渡す）
           if (pickup.exhibitionId) {
-            await loadCatalogItems(pickup.exhibitionId)
+            await loadCatalogItems(pickup.exhibitionId, itemsData)
           }
         } else {
           alert('ピックアップリストが見つかりません')
@@ -73,12 +73,20 @@ const PickupForm: React.FC = () => {
     }
   }
 
-  const loadCatalogItems = async (exhibitionId: string) => {
+  const loadCatalogItems = async (exhibitionId: string, itemsList: Item[] = allItems) => {
     try {
       const exhibition = await exhibitionsService.getExhibition(exhibitionId)
-      if (exhibition && exhibition.catalogItemIds) {
-        const items = allItems.filter((item) => exhibition.catalogItemIds!.includes(item.id!))
-        setCatalogItems(items)
+      if (exhibition) {
+        // catalogItemIdsが設定されている場合はフィルタリング、なければ全アイテムを表示
+        if (exhibition.catalogItemIds && exhibition.catalogItemIds.length > 0) {
+          const items = itemsList.filter((item) => exhibition.catalogItemIds!.includes(item.id!))
+          setCatalogItems(items)
+          console.log(`カタログアイテム読み込み: ${items.length}件（展示会のカタログから）`)
+        } else {
+          // カタログアイテムが設定されていない場合は全アクティブアイテムを表示
+          setCatalogItems(itemsList)
+          console.log(`カタログアイテム読み込み: ${itemsList.length}件（全アイテム）`)
+        }
       }
     } catch (error) {
       console.error('カタログアイテム読み込みエラー:', error)
@@ -141,10 +149,16 @@ const PickupForm: React.FC = () => {
         createdBy: currentUser?.email || undefined,
       }
 
+      console.log('=== ピックアップリスト保存開始 ===')
+      console.log('モード:', isEditMode ? '編集' : '新規作成')
       console.log('ピックアップデータ:', pickupData)
+      console.log('選択アイテム数:', formData.itemIds.length)
+      console.log('選択アイテムID:', formData.itemIds)
 
       if (isEditMode) {
+        console.log('更新中のID:', id)
         await pickupsService.updatePickup(id, pickupData)
+        console.log('更新完了')
 
         // 共有URLがない場合は生成して保存
         const currentPickup = await pickupsService.getPickup(id)
@@ -154,9 +168,10 @@ const PickupForm: React.FC = () => {
           console.log('共有URLを生成しました:', shareUrl)
         }
 
+        console.log('=== 更新処理完了 ===')
         alert('ピックアップリストを更新しました')
       } else {
-        console.log('ピックアップリスト作成開始...')
+        console.log('新規作成開始...')
         const newId = await pickupsService.createPickup(pickupData)
         console.log('作成されたID:', newId)
 
@@ -165,13 +180,16 @@ const PickupForm: React.FC = () => {
         console.log('共有URL:', shareUrl)
         await pickupsService.updatePickup(newId, { shareUrl })
 
+        console.log('=== 作成処理完了 ===')
         alert('ピックアップリストを作成しました')
       }
 
       navigate('/pickups')
     } catch (error: any) {
-      console.error('保存エラー:', error)
-      console.error('エラー詳細:', error.message, error.code)
+      console.error('=== 保存エラー ===')
+      console.error('エラー:', error)
+      console.error('エラーメッセージ:', error.message)
+      console.error('エラーコード:', error.code)
       alert(`保存に失敗しました: ${error.message || error}`)
     } finally {
       setSubmitting(false)
