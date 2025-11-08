@@ -9,7 +9,14 @@
       "Bash(powershell -Command \"(Get-Content ''C:\\Users\\aja10\\Desktop\\goko_appalel-system\\src\\pages\\pickups\\PickupForm.tsx'') -replace ''border-primary-700'', ''border-emerald-600'' | Set-Content ''C:\\Users\\aja10\\Desktop\\goko_appalel-system\\src\\pages\\pickups\\PickupForm.tsx''\")",
       "Bash(powershell -Command:*)",
       "Bash(nul)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(start \"C:\\Users\\aja10\\Desktop\\プログラム再開\\GOKO_再開マニュアル.html\")",
+      "Bash(firebase deploy:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

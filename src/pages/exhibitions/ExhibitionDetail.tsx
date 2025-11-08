@@ -489,7 +489,7 @@ const ExhibitionDetail: React.FC = () => {
               <div className="flex gap-3">
                 <input
                   type="text"
-                  placeholder="品番またはアイテム名で検索..."
+                  placeholder="アイテムNo.またはアイテム名で検索..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-[2] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -499,7 +499,7 @@ const ExhibitionDetail: React.FC = () => {
                   onChange={(e) => setCreatedByFilter(e.target.value)}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="">入力者：絞り込み</option>
+                  <option value="">入力者ID：絞り込み</option>
                   {[...new Set(allItems.map(item => item.createdBy).filter(Boolean))].map(createdBy => (
                     <option key={createdBy} value={createdBy}>
                       {createdBy}
@@ -517,7 +517,7 @@ const ExhibitionDetail: React.FC = () => {
                       選択
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      品番
+                      アイテムNo.
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       アイテム名

@@ -193,7 +193,7 @@ const ItemForm: React.FC = () => {
       newErrors.name = '名前は必須です'
     }
     if (!formData.createdBy.trim()) {
-      newErrors.createdBy = '入力者は必須です'
+      newErrors.createdBy = '入力者IDは必須です'
     }
 
     setErrors(newErrors)
@@ -278,9 +278,9 @@ const ItemForm: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ナビゲーションバー */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-20">
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/items')}
@@ -538,7 +538,7 @@ const ItemForm: React.FC = () => {
             <h2 className="text-xl font-bold text-gray-900 mb-4">入力者情報</h2>
             <div>
               <label htmlFor="createdBy" className="block text-sm font-medium text-gray-700 mb-1">
-                入力者 <span className="text-red-500">*</span>
+                入力者ID <span className="text-red-500">*</span>
               </label>
               <input
                 id="createdBy"

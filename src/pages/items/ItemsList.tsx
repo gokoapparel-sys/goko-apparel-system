@@ -196,7 +196,7 @@ const ItemsList: React.FC = () => {
             </div>
             <div className="flex-1">
               <label htmlFor="createdByFilter" className="block text-sm font-medium text-gray-700 mb-1">
-                入力者で絞り込み
+                入力者IDで絞り込み
               </label>
               <input
                 id="createdByFilter"
@@ -282,7 +282,7 @@ const ItemsList: React.FC = () => {
                         型紙
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        入力者
+                        入力者ID
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         ステータス

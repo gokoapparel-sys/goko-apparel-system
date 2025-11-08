@@ -142,9 +142,9 @@ const ItemDetail: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ナビゲーションバー */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-20">
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/items')}
@@ -205,7 +205,7 @@ const ItemDetail: React.FC = () => {
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">SKU</p>
+                <p className="text-sm text-gray-600">アイテムNo.</p>
                 <p className="text-lg font-semibold text-gray-900">{item.sku}</p>
               </div>
 
@@ -240,7 +240,7 @@ const ItemDetail: React.FC = () => {
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">入力者</p>
+                <p className="text-sm text-gray-600">入力者ID</p>
                 <p className="text-lg font-semibold text-gray-900">{item.createdBy || '-'}</p>
               </div>
 
@@ -266,7 +266,7 @@ const ItemDetail: React.FC = () => {
                             href={pattern.files.spec.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
                           >
                             📄 仕様書
                           </a>
@@ -282,7 +282,7 @@ const ItemDetail: React.FC = () => {
                             href={pattern.files.layout.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 transition-colors"
                           >
                             📐 展開図
                           </a>
@@ -298,7 +298,7 @@ const ItemDetail: React.FC = () => {
                             href={pattern.files.data.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg hover:bg-indigo-800 transition-colors"
                           >
                             📦 型紙データ
                           </a>

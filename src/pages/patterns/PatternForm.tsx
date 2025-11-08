@@ -166,7 +166,7 @@ const PatternForm: React.FC = () => {
       newErrors.patternName = '型紙名は必須です'
     }
     if (!formData.managerId.trim()) {
-      newErrors.managerId = '担当者IDは必須です'
+      newErrors.managerId = '入力者IDは必須です'
     }
 
     setErrors(newErrors)
@@ -251,9 +251,9 @@ const PatternForm: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ナビゲーションバー */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-20">
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/patterns')}
@@ -329,10 +329,10 @@ const PatternForm: React.FC = () => {
                 )}
               </div>
 
-              {/* 担当者ID */}
+              {/* 入力者ID */}
               <div>
                 <label htmlFor="managerId" className="block text-sm font-medium text-gray-700 mb-1">
-                  担当者ID <span className="text-red-500">*</span>
+                  入力者ID <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="managerId"

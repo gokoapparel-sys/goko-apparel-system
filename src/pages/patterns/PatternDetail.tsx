@@ -157,9 +157,9 @@ const PatternDetail: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ナビゲーションバー */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-20">
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/patterns')}
@@ -196,7 +196,7 @@ const PatternDetail: React.FC = () => {
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">担当者ID</p>
+                <p className="text-sm text-gray-600">入力者ID</p>
                 <p className="text-lg font-semibold text-gray-900">{pattern.managerId}</p>
               </div>
 
@@ -232,7 +232,7 @@ const PatternDetail: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     download={pattern.files.spec.fileName}
-                    className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center justify-center px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
                   >
                     📄 仕様書
                   </a>
@@ -249,7 +249,7 @@ const PatternDetail: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     download={pattern.files.layout.fileName}
-                    className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    className="inline-flex items-center justify-center px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 transition-colors"
                   >
                     📐 展開図
                   </a>
@@ -266,7 +266,7 @@ const PatternDetail: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     download={pattern.files.data.fileName}
-                    className="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                    className="inline-flex items-center justify-center px-4 py-2 bg-indigo-700 text-white text-sm font-medium rounded-lg hover:bg-indigo-800 transition-colors"
                   >
                     📦 型紙データ
                   </a>
@@ -333,7 +333,7 @@ const PatternDetail: React.FC = () => {
                         名前
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        SKU
+                        アイテムNo.
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         価格
