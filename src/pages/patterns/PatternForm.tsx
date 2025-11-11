@@ -163,7 +163,7 @@ const PatternForm: React.FC = () => {
       newErrors.patternCode = '型紙No.は必須です'
     }
     if (!formData.patternName.trim()) {
-      newErrors.patternName = '型紙名は必須です'
+      newErrors.patternName = 'アイテム名は必須です'
     }
     if (!formData.managerId.trim()) {
       newErrors.managerId = '入力者IDは必須です'
@@ -257,11 +257,11 @@ const PatternForm: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/patterns')}
-                className="text-sm text-gray-600 hover:text-gray-900 mr-4"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
               >
-                ← 一覧に戻る
+                ← 一覧
               </button>
-              <h1 className="text-xl font-bold text-primary-700">
+              <h1 className="text-xl font-bold text-primary-700 ml-6">
                 {isEditMode ? '型紙編集' : '新規型紙作成'}
               </h1>
             </div>
@@ -304,13 +304,13 @@ const PatternForm: React.FC = () => {
                 )}
               </div>
 
-              {/* 型紙名 */}
+              {/* アイテム名 */}
               <div>
                 <label
                   htmlFor="patternName"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  型紙名 <span className="text-red-500">*</span>
+                  アイテム名 <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="patternName"

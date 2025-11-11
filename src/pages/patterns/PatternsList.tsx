@@ -159,7 +159,7 @@ const PatternsList: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                検索（型紙No.、型紙名）
+                検索（型紙No.、アイテム名）
               </label>
               <input
                 id="search"
@@ -225,7 +225,7 @@ const PatternsList: React.FC = () => {
                         型紙No.
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        型紙名
+                        アイテム名
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         ファイル

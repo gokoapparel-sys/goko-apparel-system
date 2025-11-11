@@ -17,19 +17,19 @@ const ItemForm: React.FC = () => {
     name: '',
     sku: '', // 後方互換性
     fabricNo: '',
+    fabricName: '',
     composition: '',
     dollarPrice: 0,
     moq: '',
     referencePrice: 0,
     factory: '',
-    sizeOptions: '',
-    colorOptions: '',
     color: '', // 後方互換性
     size: '', // 後方互換性
     status: 'active' as 'active' | 'archived',
     patternId: '',
     patternNo: '',
     createdBy: '',
+    appealPoint: '',
   })
 
   const [existingImages, setExistingImages] = useState<{ url: string; path: string }[]>([])
@@ -73,19 +73,19 @@ const ItemForm: React.FC = () => {
           name: item.name,
           sku: item.sku,
           fabricNo: item.fabricNo || '',
+          fabricName: item.fabricName || '',
           composition: item.composition || '',
           dollarPrice: item.dollarPrice || 0,
           moq: item.moq || '',
           referencePrice: item.referencePrice || 0,
           factory: item.factory || '',
-          sizeOptions: item.sizeOptions || '',
-          colorOptions: item.colorOptions || '',
           color: item.color || '',
           size: item.size || '',
           status: item.status,
           patternId: item.patternId || '',
           patternNo: item.patternNo || '',
           createdBy: item.createdBy || '',
+          appealPoint: item.appealPoint || '',
         })
         setExistingImages(item.images || [])
       } else {
@@ -284,11 +284,11 @@ const ItemForm: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/items')}
-                className="text-sm text-gray-600 hover:text-gray-900 mr-4"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
               >
-                ← 一覧に戻る
+                ← 一覧
               </button>
-              <h1 className="text-xl font-bold text-primary-700">
+              <h1 className="text-xl font-bold text-primary-700 ml-6">
                 {isEditMode ? 'アイテム編集' : '新規アイテム作成'}
               </h1>
             </div>
@@ -357,6 +357,23 @@ const ItemForm: React.FC = () => {
                   value={formData.fabricNo}
                   onChange={handleChange}
                   placeholder="例: FB-001"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  disabled={submitting}
+                />
+              </div>
+
+              {/* 生地名 */}
+              <div>
+                <label htmlFor="fabricName" className="block text-sm font-medium text-gray-700 mb-1">
+                  生地名
+                </label>
+                <input
+                  id="fabricName"
+                  name="fabricName"
+                  type="text"
+                  value={formData.fabricName}
+                  onChange={handleChange}
+                  placeholder="例: コットンツイル"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                   disabled={submitting}
                 />
@@ -497,35 +514,18 @@ const ItemForm: React.FC = () => {
                 </select>
               </div>
 
-              {/* サイズ展開 */}
+              {/* アピールポイント */}
               <div className="md:col-span-2">
-                <label htmlFor="sizeOptions" className="block text-sm font-medium text-gray-700 mb-1">
-                  サイズ展開
+                <label htmlFor="appealPoint" className="block text-sm font-medium text-gray-700 mb-1">
+                  アピールポイント
                 </label>
                 <textarea
-                  id="sizeOptions"
-                  name="sizeOptions"
-                  rows={2}
-                  value={formData.sizeOptions}
+                  id="appealPoint"
+                  name="appealPoint"
+                  rows={3}
+                  value={formData.appealPoint}
                   onChange={handleChange}
-                  placeholder="例: S, M, L, XL"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  disabled={submitting}
-                />
-              </div>
-
-              {/* 色展開 */}
-              <div className="md:col-span-2">
-                <label htmlFor="colorOptions" className="block text-sm font-medium text-gray-700 mb-1">
-                  色展開
-                </label>
-                <textarea
-                  id="colorOptions"
-                  name="colorOptions"
-                  rows={2}
-                  value={formData.colorOptions}
-                  onChange={handleChange}
-                  placeholder="例: 白, 黒, グレー, ネイビー"
+                  placeholder="例: 軽量で通気性に優れた素材を使用。ストレッチ性があり着心地抜群です。"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                   disabled={submitting}
                 />

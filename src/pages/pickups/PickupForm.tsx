@@ -19,6 +19,7 @@ const PickupForm: React.FC = () => {
     exhibitionName: '',
     itemIds: [] as string[],
     status: 'active' as 'active' | 'archived',
+    createdBy: '',
   })
 
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([])
@@ -54,6 +55,7 @@ const PickupForm: React.FC = () => {
             exhibitionName: pickup.exhibitionName || '',
             itemIds: pickup.itemIds || [],
             status: pickup.status,
+            createdBy: pickup.createdBy || '',
           })
 
           // 展示会のカタログアイテムを読み込み（itemsDataを渡す）
@@ -146,7 +148,7 @@ const PickupForm: React.FC = () => {
         itemIds: formData.itemIds.length > 0 ? formData.itemIds : [],
         createdDate: Timestamp.now(),
         status: formData.status,
-        createdBy: currentUser?.email || undefined,
+        createdBy: formData.createdBy || currentUser?.email || undefined,
       }
 
       console.log('=== ピックアップリスト保存開始 ===')
@@ -292,6 +294,22 @@ const PickupForm: React.FC = () => {
                   <option value="active">有効</option>
                   <option value="archived">アーカイブ</option>
                 </select>
+              </div>
+
+              <div>
+                <label htmlFor="createdBy" className="block text-sm font-medium text-gray-700 mb-1">
+                  入力者ID
+                </label>
+                <input
+                  id="createdBy"
+                  name="createdBy"
+                  type="text"
+                  value={formData.createdBy}
+                  onChange={handleChange}
+                  placeholder="例: user@example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  disabled={submitting}
+                />
               </div>
             </div>
 

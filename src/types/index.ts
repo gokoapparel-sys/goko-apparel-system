@@ -17,19 +17,21 @@ export interface Item {
   name: string
   sku: string // 旧フィールド（後方互換性のため残す）
   fabricNo?: string // 生地No.
+  fabricName?: string // 生地名
   composition?: string // 混率
   price?: number // 価格（後方互換性のため残す）
   dollarPrice?: number // ＄単価
   moq?: string // 単価枚数条件
   referencePrice?: number // 売単価（参考）
   factory?: string // 工場名
-  sizeOptions?: string // サイズ展開（カンマ区切り）
-  colorOptions?: string // 色展開（カンマ区切り）
+  sizeOptions?: string // サイズ展開（カンマ区切り）- 後方互換性のため残す
+  colorOptions?: string // 色展開（カンマ区切り）- 後方互換性のため残す
   color?: string // 旧フィールド（後方互換性のため残す）
   size?: string // 旧フィールド（後方互換性のため残す）
   status: 'active' | 'archived'
   patternId?: string  // 型紙ID（紐付け）
   patternNo?: string // 型紙No.（表示用）
+  appealPoint?: string // アピールポイント
   images?: {
     url: string
     path: string

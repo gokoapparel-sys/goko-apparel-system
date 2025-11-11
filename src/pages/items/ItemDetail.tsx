@@ -148,17 +148,20 @@ const ItemDetail: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/items')}
-                className="text-sm text-gray-600 hover:text-gray-900 mr-4"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
               >
-                ← 一覧に戻る
+                ← 一覧
               </button>
-              <h1 className="text-xl font-bold text-primary-700">アイテム詳細</h1>
+              <h1 className="text-xl font-bold text-primary-700 ml-6">アイテム詳細</h1>
+              <button
+                onClick={() => navigate(`/items/${id}`)}
+                className="ml-4 inline-flex items-center px-5 py-2.5 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-700 transition-all shadow-md"
+              >
+                編集
+              </button>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{currentUser?.email}</span>
-              <button onClick={() => navigate(`/items/${id}`)} className="btn-primary">
-                編集
-              </button>
             </div>
           </div>
         </div>

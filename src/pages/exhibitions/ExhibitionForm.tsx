@@ -194,11 +194,11 @@ const ExhibitionForm: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={() => navigate('/exhibitions')}
-                className="text-sm text-gray-600 hover:text-gray-900 mr-4"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
               >
-                ← 一覧に戻る
+                ← 一覧
               </button>
-              <h1 className="text-xl font-bold text-primary-700">
+              <h1 className="text-xl font-bold text-primary-700 ml-6">
                 {isEditMode ? '展示会編集' : '新規展示会作成'}
               </h1>
             </div>
