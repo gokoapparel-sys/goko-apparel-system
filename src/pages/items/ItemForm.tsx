@@ -19,6 +19,7 @@ const ItemForm: React.FC = () => {
     fabricNo: '',
     fabricName: '',
     composition: '',
+    fabricSpec: '',
     dollarPrice: 0,
     moq: '',
     referencePrice: 0,
@@ -75,6 +76,7 @@ const ItemForm: React.FC = () => {
           fabricNo: item.fabricNo || '',
           fabricName: item.fabricName || '',
           composition: item.composition || '',
+          fabricSpec: item.fabricSpec || '',
           dollarPrice: item.dollarPrice || 0,
           moq: item.moq || '',
           referencePrice: item.referencePrice || 0,
@@ -394,6 +396,26 @@ const ItemForm: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                   disabled={submitting}
                 />
+              </div>
+
+              {/* 生地規格 */}
+              <div>
+                <label htmlFor="fabricSpec" className="block text-sm font-medium text-gray-700 mb-1">
+                  生地規格
+                </label>
+                <input
+                  id="fabricSpec"
+                  name="fabricSpec"
+                  type="text"
+                  value={formData.fabricSpec}
+                  onChange={handleChange}
+                  placeholder="例: 40/-天竺 170g/m² 生産生地"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  disabled={submitting}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  生地の規格や目付、生産生地か市場生地か等を入力してください
+                </p>
               </div>
 
               {/* ＄単価 */}

@@ -231,6 +231,35 @@ const ItemDetail: React.FC = () => {
                 <p className="text-lg font-semibold text-gray-900">{item.sku}</p>
               </div>
 
+              {item.fabricNo && (
+                <div>
+                  <p className="text-sm text-gray-600">生地No.</p>
+                  <p className="text-lg font-semibold text-gray-900">{item.fabricNo}</p>
+                </div>
+              )}
+
+              {item.fabricName && (
+                <div>
+                  <p className="text-sm text-gray-600">生地名</p>
+                  <p className="text-lg font-semibold text-gray-900">{item.fabricName}</p>
+                </div>
+              )}
+
+              {item.composition && (
+                <div>
+                  <p className="text-sm text-gray-600">混率</p>
+                  <p className="text-lg font-semibold text-gray-900">{item.composition}</p>
+                </div>
+              )}
+
+              {item.fabricSpec && (
+                <div className="md:col-span-2">
+                  <p className="text-sm text-gray-600">生地規格</p>
+                  <p className="text-lg font-semibold text-gray-900">{item.fabricSpec}</p>
+                  <p className="text-xs text-gray-500 mt-1">生地の規格や目付、生産/市場生地など</p>
+                </div>
+              )}
+
               <div>
                 <p className="text-sm text-gray-600">色</p>
                 <p className="text-lg font-semibold text-gray-900">{item.color || '-'}</p>
@@ -241,10 +270,40 @@ const ItemDetail: React.FC = () => {
                 <p className="text-lg font-semibold text-gray-900">{item.size || '-'}</p>
               </div>
 
-              <div>
-                <p className="text-sm text-gray-600">価格</p>
-                <p className="text-lg font-semibold text-gray-900">¥{item.price?.toLocaleString() ?? '-'}</p>
-              </div>
+              {item.dollarPrice && (
+                <div>
+                  <p className="text-sm text-gray-600">＄単価</p>
+                  <p className="text-lg font-semibold text-gray-900">${item.dollarPrice.toLocaleString()}</p>
+                </div>
+              )}
+
+              {item.moq && (
+                <div>
+                  <p className="text-sm text-gray-600">単価枚数条件</p>
+                  <p className="text-lg font-semibold text-gray-900">{item.moq}</p>
+                </div>
+              )}
+
+              {item.referencePrice && (
+                <div>
+                  <p className="text-sm text-gray-600">売単価（参考）</p>
+                  <p className="text-lg font-semibold text-gray-900">¥{item.referencePrice.toLocaleString()}</p>
+                </div>
+              )}
+
+              {item.factory && (
+                <div>
+                  <p className="text-sm text-gray-600">工場名</p>
+                  <p className="text-lg font-semibold text-gray-900">{item.factory}</p>
+                </div>
+              )}
+
+              {item.price && (
+                <div>
+                  <p className="text-sm text-gray-600">価格（旧）</p>
+                  <p className="text-lg font-semibold text-gray-900">¥{item.price.toLocaleString()}</p>
+                </div>
+              )}
 
               <div>
                 <p className="text-sm text-gray-600">ステータス</p>

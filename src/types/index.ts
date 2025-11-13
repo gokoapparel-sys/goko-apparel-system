@@ -19,6 +19,7 @@ export interface Item {
   fabricNo?: string // 生地No.
   fabricName?: string // 生地名
   composition?: string // 混率
+  fabricSpec?: string // 生地規格（規格、目付、生産/市場生地など）
   price?: number // 価格（後方互換性のため残す）
   dollarPrice?: number // ＄単価
   moq?: string // 単価枚数条件
