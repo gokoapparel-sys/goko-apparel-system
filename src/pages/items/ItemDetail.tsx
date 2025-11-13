@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { itemsService } from '../../services/itemsService'
 import { patternsService } from '../../services/patternsService'
 import { Item, Pattern } from '../../types'
+import { Timestamp } from 'firebase/firestore'
 import JSZip from 'jszip'
 
 const ItemDetail: React.FC = () => {
@@ -76,14 +77,32 @@ const ItemDetail: React.FC = () => {
       const zip = new JSZip()
       const promises: Promise<void>[] = []
 
-      // 仕様書を追加
+      // 仕様書を追加（複数ファイル対応 + 後方互換性）
       if (pattern.files?.spec) {
-        const promise = fetch(pattern.files.spec.fileUrl)
-          .then(res => res.blob())
-          .then(blob => {
-            zip.file(pattern.files.spec!.fileName, blob)
+        if (Array.isArray(pattern.files.spec)) {
+          // 新形式: 配列
+          const specFiles = pattern.files.spec
+          specFiles.forEach((specFile, index) => {
+            const promise = fetch(specFile.fileUrl)
+              .then(res => res.blob())
+              .then(blob => {
+                const fileName = specFiles.length > 1
+                  ? `spec_${index + 1}_${specFile.fileName}`
+                  : specFile.fileName
+                zip.file(fileName, blob)
+              })
+            promises.push(promise)
           })
-        promises.push(promise)
+        } else if ('fileUrl' in pattern.files.spec && pattern.files.spec.fileUrl) {
+          // 旧形式: 単一オブジェクト（後方互換性）
+          const specFile = pattern.files.spec as { fileName: string; fileUrl: string }
+          const promise = fetch(specFile.fileUrl)
+            .then(res => res.blob())
+            .then(blob => {
+              zip.file(specFile.fileName, blob)
+            })
+          promises.push(promise)
+        }
       }
 
       // 展開図を追加
@@ -263,16 +282,52 @@ const ItemDetail: React.FC = () => {
                     <div className="bg-gray-50 p-4 rounded-lg space-y-3">
                       <p className="text-sm font-medium text-gray-700 mb-2">型紙ファイル:</p>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {/* 仕様書 */}
+                        {/* 仕様書（複数ファイル対応 + 後方互換性） */}
                         {pattern.files?.spec ? (
-                          <a
-                            href={pattern.files.spec.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
-                          >
-                            📄 仕様書
-                          </a>
+                          Array.isArray(pattern.files.spec) && pattern.files.spec.length > 0 ? (
+                            // 新形式: 配列
+                            (() => {
+                              const specFiles = pattern.files.spec as Array<{ id: string; fileName: string; fileUrl: string; uploadedAt: Timestamp }>
+                              return (
+                                <div className="space-y-2">
+                                  {specFiles.map((specFile, index) => (
+                                    <a
+                                      key={specFile.id}
+                                      href={specFile.fileUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      download={specFile.fileName}
+                                      className="inline-flex items-center justify-center w-full px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+                                    >
+                                      📄 仕様書 {specFiles.length > 1 ? `(${index + 1})` : ''}
+                                    </a>
+                                  ))}
+                                </div>
+                              )
+                            })()
+
+                          ) : ('fileUrl' in pattern.files.spec && pattern.files.spec.fileUrl) ? (
+                            // 旧形式: 単一オブジェクト（後方互換性）
+                            (() => {
+                              const specFile = pattern.files.spec as { fileName: string; fileUrl: string }
+                              return (
+                                <a
+                                  href={specFile.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  download={specFile.fileName}
+                                  className="inline-flex items-center justify-center px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+                                >
+                                  📄 仕様書
+                                </a>
+                              )
+                            })()
+
+                          ) : (
+                            <div className="inline-flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
+                              📄 仕様書（未登録）
+                            </div>
+                          )
                         ) : (
                           <div className="inline-flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
                             📄 仕様書（未登録）

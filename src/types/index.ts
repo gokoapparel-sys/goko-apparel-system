@@ -92,7 +92,12 @@ export interface Pattern {
   patternCode: string
   patternName: string
   files: {
-    spec?: {
+    spec?: Array<{  // 複数の仕様書対応（新形式）
+      id: string  // 個別ファイルの識別用
+      fileName: string
+      fileUrl: string
+      uploadedAt: Timestamp
+    }> | {  // 単一の仕様書（旧形式：後方互換性）
       fileName: string
       fileUrl: string
     }

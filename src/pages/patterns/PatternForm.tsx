@@ -102,8 +102,22 @@ const PatternForm: React.FC = () => {
         e.target.value = ''
         return
       }
+    } else if (fileType === 'spec') {
+      // 仕様書: PDF または Excel
+      const validExtensions = ['.pdf', '.xls', '.xlsx']
+      const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+      if (!validExtensions.includes(fileExtension)) {
+        alert('仕様書はPDFまたはExcelファイル（.pdf, .xls, .xlsx）のみアップロード可能です')
+        e.target.value = ''
+        return
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        alert('ファイルサイズは20MB以下にしてください')
+        e.target.value = ''
+        return
+      }
     } else {
-      // PDF書類のバリデーション
+      // 展開図: PDFのみ
       if (file.type !== 'application/pdf') {
         alert('PDFファイルのみアップロード可能です')
         e.target.value = ''
@@ -136,8 +150,8 @@ const PatternForm: React.FC = () => {
     }
   }
 
-  // ファイル削除
-  const handleFileRemove = async (fileType: 'spec' | 'layout' | 'data') => {
+  // ファイル削除（layout, data用）
+  const handleFileRemove = async (fileType: 'layout' | 'data') => {
     if (!id) return
     if (!confirm('このファイルを削除しますか？')) return
 
@@ -151,6 +165,25 @@ const PatternForm: React.FC = () => {
       alert('ファイルを削除しました')
     } catch (error) {
       console.error('ファイル削除エラー:', error)
+      alert('ファイルの削除に失敗しました')
+    }
+  }
+
+  // 仕様書の個別ファイル削除
+  const handleSpecFileRemove = async (fileId: string) => {
+    if (!id) return
+    if (!confirm('この仕様書ファイルを削除しますか？')) return
+
+    try {
+      await patternsService.removeSpecFile(id, fileId)
+      // ファイル情報を更新
+      const updatedPattern = await patternsService.getPattern(id)
+      if (updatedPattern) {
+        setFiles(updatedPattern.files)
+      }
+      alert('仕様書ファイルを削除しました')
+    } catch (error) {
+      console.error('仕様書ファイル削除エラー:', error)
       alert('ファイルの削除に失敗しました')
     }
   }
@@ -376,11 +409,81 @@ const PatternForm: React.FC = () => {
             <div className="mt-8 pt-8 border-t space-y-6">
               <h2 className="text-xl font-bold text-gray-900">ファイル管理</h2>
               <p className="text-sm text-gray-600">
-                仕様書・展開図: PDFファイル（最大20MB）<br />
+                仕様書: PDFまたはExcelファイル（.pdf, .xls, .xlsx / 最大20MB / 複数可）<br />
+                展開図: PDFファイル（最大20MB）<br />
                 型紙データファイル: DXF, AI, CDR, PDF, ZIP など（最大50MB）
               </p>
 
-              {(['spec', 'layout', 'data'] as const).map((fileType) => (
+              {/* 仕様書（複数ファイル対応） */}
+              <div className="border rounded-lg p-4">
+                <h3 className="font-medium text-gray-900 mb-3">仕様書</h3>
+
+                {/* アップロード済みファイル一覧 */}
+                {files.spec && Array.isArray(files.spec) && files.spec.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {files.spec.map((specFile) => (
+                      <div
+                        key={specFile.id}
+                        className="flex items-center justify-between bg-gray-50 p-3 rounded"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <svg
+                            className="w-8 h-8 text-emerald-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                          </svg>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {specFile.fileName}
+                            </p>
+                            <a
+                              href={specFile.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary-600 hover:text-primary-800"
+                            >
+                              ファイルを開く
+                            </a>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleSpecFileRemove(specFile.id)}
+                          className="text-red-600 hover:text-red-800 text-sm font-medium"
+                          disabled={submitting}
+                        >
+                          削除
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* ファイルアップロード */}
+                <div>
+                  <input
+                    type="file"
+                    accept=".pdf,.xls,.xlsx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    onChange={(e) => handleFileUpload(e, 'spec')}
+                    className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-primary-50 file:text-primary-700
+                      hover:file:bg-primary-100
+                      cursor-pointer"
+                    disabled={submitting || uploadingFiles.spec}
+                  />
+                  {uploadingFiles.spec && (
+                    <p className="mt-2 text-sm text-gray-600">アップロード中...</p>
+                  )}
+                </div>
+              </div>
+
+              {/* 展開図と型紙データファイル（単一ファイル） */}
+              {(['layout', 'data'] as const).map((fileType) => (
                 <div key={fileType} className="border rounded-lg p-4">
                   <h3 className="font-medium text-gray-900 mb-2">{getFileTypeLabel(fileType)}</h3>
 
