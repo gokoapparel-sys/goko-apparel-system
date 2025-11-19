@@ -19,6 +19,7 @@ import ExhibitionForm from './pages/exhibitions/ExhibitionForm'
 import ExhibitionDetail from './pages/exhibitions/ExhibitionDetail'
 import StaffWebCatalog from './pages/exhibitions/StaffWebCatalog'
 import CustomerWebCatalog from './pages/exhibitions/CustomerWebCatalog'
+import ExhibitionLandingPage from './pages/exhibitions/ExhibitionLandingPage'
 import PickupsList from './pages/pickups/PickupsList'
 import PickupForm from './pages/pickups/PickupForm'
 import PickupDetail from './pages/pickups/PickupDetail'
@@ -43,6 +44,8 @@ const App: React.FC = () => {
           <Route path="/scan-item/:itemId" element={<ScanItem />} />
           {/* Public customer catalog */}
           <Route path="/exhibitions/:id/customer-catalog" element={<CustomerWebCatalog />} />
+          {/* Public exhibition landing page */}
+          <Route path="/exhibitions/:id/landing" element={<ExhibitionLandingPage />} />
           <Route
             path="/"
             element={

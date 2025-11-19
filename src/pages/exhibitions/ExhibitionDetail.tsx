@@ -432,19 +432,12 @@ const ExhibitionDetail: React.FC = () => {
             )}
           </div>
 
-          {/* カタログアイテム */}
+          {/* コンテンツ */}
           <div className="mt-8 pt-8 border-t">
             <div className="mb-4">
-              {/* 1段目：タイトルと保存ボタン（左寄せ） */}
+              {/* 1段目：タイトル（左寄せ） */}
               <div className="flex items-center gap-3 mb-3">
-                <h2 className="text-lg font-bold text-gray-900">カタログアイテム</h2>
-                <button
-                  onClick={handleSaveCatalog}
-                  disabled={savingCatalog}
-                  className="inline-flex items-center px-6 py-2 bg-cyan-50 text-emerald-700 font-bold rounded-lg hover:bg-cyan-100 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {savingCatalog ? '保存中...' : 'カタログを保存'}
-                </button>
+                <h2 className="text-lg font-bold text-gray-900">コンテンツ</h2>
               </div>
 
               {/* 2段目：アクションボタン（右詰め） */}
@@ -461,6 +454,12 @@ const ExhibitionDetail: React.FC = () => {
                   className="inline-flex items-center px-5 py-2.5 bg-blue-900 text-white font-medium rounded-lg hover:bg-blue-950 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   管理者用PDF出力
+                </button>
+                <button
+                  onClick={() => navigate(`/exhibitions/${id}/landing`)}
+                  className="inline-flex items-center px-5 py-2.5 bg-purple-700 text-white font-medium rounded-lg hover:bg-purple-800 transition-all shadow-sm"
+                >
+                  展示会LP
                 </button>
                 <button
                   onClick={() => navigate(`/exhibitions/${id}/customer-catalog`)}
@@ -509,6 +508,17 @@ const ExhibitionDetail: React.FC = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* 保存ボタン */}
+              <div className="mt-3">
+                <button
+                  onClick={handleSaveCatalog}
+                  disabled={savingCatalog}
+                  className="inline-flex items-center px-6 py-2 bg-cyan-50 text-emerald-700 font-bold rounded-lg hover:bg-cyan-100 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {savingCatalog ? '保存中...' : 'アイテムリスト保存'}
+                </button>
               </div>
             </div>
 
