@@ -11,6 +11,8 @@ const PickupPublicView: React.FC = () => {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null)
 
   useEffect(() => {
     if (id) {
@@ -148,7 +150,15 @@ const PickupPublicView: React.FC = () => {
 
               <div className="p-5">
                 {/* 画像 */}
-                <div className="aspect-square w-full bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200">
+                <div
+                  className="aspect-square w-full bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg overflow-hidden mb-4 border border-gray-200 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+                  onClick={() => {
+                    if (item.images && item.images.length > 0) {
+                      setSelectedImage(item.images[0].url)
+                      setSelectedItem(item)
+                    }
+                  }}
+                >
                   {item.images && item.images.length > 0 ? (
                     <img
                       src={item.images[0].url}
@@ -241,6 +251,77 @@ const PickupPublicView: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* 画像拡大モーダル */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setSelectedImage(null)
+            setSelectedItem(null)
+          }}
+        >
+          <div className="relative max-w-7xl max-h-full w-full h-full flex flex-col">
+            {/* 閉じるボタン */}
+            <button
+              className="absolute top-4 right-4 z-10 bg-white text-gray-900 rounded-full p-3 hover:bg-gray-100 transition-colors shadow-lg"
+              onClick={() => {
+                setSelectedImage(null)
+                setSelectedItem(null)
+              }}
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+
+            {/* 画像 */}
+            <div
+              className="flex-1 flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={selectedImage}
+                alt={selectedItem?.name || '商品画像'}
+                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              />
+            </div>
+
+            {/* 商品情報 */}
+            {selectedItem && (
+              <div
+                className="bg-white rounded-lg p-6 mt-4 shadow-xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-emerald-700 font-semibold mb-1">品番</p>
+                    <p className="text-lg font-bold text-emerald-900">{selectedItem.itemNo}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">アイテム名</p>
+                    <p className="text-base font-semibold text-gray-900">{selectedItem.name}</p>
+                  </div>
+                  {selectedItem.composition && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">混率</p>
+                      <p className="text-sm text-gray-700">{selectedItem.composition}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
