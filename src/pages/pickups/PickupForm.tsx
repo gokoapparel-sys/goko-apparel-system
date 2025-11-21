@@ -41,8 +41,8 @@ const PickupForm: React.FC = () => {
       const { exhibitions: exData } = await exhibitionsService.listExhibitions()
       setExhibitions(exData)
 
-      // アイテム一覧を読み込み
-      const { items: itemsData } = await itemsService.listItems({ status: 'active' })
+      // アイテム一覧を読み込み（全件）
+      const itemsData = await itemsService.listAllItems({ status: 'active' })
       setAllItems(itemsData)
 
       // 編集モードの場合、既存データを読み込み

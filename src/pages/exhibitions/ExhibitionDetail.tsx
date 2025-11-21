@@ -53,7 +53,7 @@ const ExhibitionDetail: React.FC = () => {
 
   const loadAllItems = async () => {
     try {
-      const { items } = await itemsService.listItems({ status: 'active' })
+      const items = await itemsService.listAllItems({ status: 'active' })
       setAllItems(items)
     } catch (error) {
       console.error('アイテム読み込みエラー:', error)

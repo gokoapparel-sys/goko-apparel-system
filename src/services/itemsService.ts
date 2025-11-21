@@ -95,6 +95,33 @@ export interface ListItemsResult {
 
 export const itemsService = {
   /**
+   * 全てのアイテムを取得（ページネーションなし）
+   */
+  async listAllItems(params: { status?: 'active' | 'archived' } = {}): Promise<Item[]> {
+    const { status } = params
+
+    try {
+      let q_query = query(
+        collection(db, COLLECTION_NAME),
+        orderBy('updatedAt', 'desc')
+      )
+
+      const querySnapshot = await getDocs(q_query)
+      let items = querySnapshot.docs.map((doc) => toItem(doc.id, doc.data()))
+
+      // ステータスでフィルタリング
+      if (status) {
+        items = items.filter((item) => item.status === status)
+      }
+
+      return items
+    } catch (error) {
+      console.error('全アイテム取得エラー:', error)
+      throw error
+    }
+  },
+
+  /**
    * アイテム一覧を取得
    */
   async listItems(params: ListItemsParams = {}): Promise<ListItemsResult> {
