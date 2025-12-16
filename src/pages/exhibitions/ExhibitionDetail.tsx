@@ -6,7 +6,6 @@ import { itemsService } from '../../services/itemsService'
 import { Exhibition, Item } from '../../types'
 import { pdf } from '@react-pdf/renderer'
 import { TagLabelPDF } from '../../utils/pdfGenerators/tagLabelPDF'
-import { generateQRCodeDataURL, generateItemScanURL } from '../../utils/qrCodeGenerator'
 import { generatePDFFromHTML } from '../../utils/pdfGenerators/htmlToPdfGenerator'
 import { generateStaffCatalogHTML } from '../../utils/pdfGenerators/staffCatalogHTML'
 import { generateCustomerCatalogHTML } from '../../utils/pdfGenerators/customerCatalogHTML'
@@ -242,12 +241,13 @@ const ExhibitionDetail: React.FC = () => {
         return
       }
 
-      // 各アイテムのQRコードを生成
-      const itemQRCodes: Record<string, string> = {}
+      // 各アイテムの製品画像URLを取得
+      const itemImages: Record<string, string> = {}
       for (const item of catalogItems) {
-        const itemURL = generateItemScanURL(item.id!, exhibition.id!)
-        const qrCode = await generateQRCodeDataURL(itemURL, { width: 200 })
-        itemQRCodes[item.id!] = qrCode
+        // アイテムに画像がある場合は最初の画像を使用
+        if (item.images && item.images.length > 0) {
+          itemImages[item.id!] = item.images[0].url
+        }
       }
 
       // PDF生成（展示会のlabelSizeを使用、なければデフォルト値）
@@ -257,7 +257,7 @@ const ExhibitionDetail: React.FC = () => {
           items={catalogItems}
           labelWidth={exhibition.labelSize?.width}
           labelHeight={exhibition.labelSize?.height}
-          itemQRCodes={itemQRCodes}
+          itemImages={itemImages}
         />
       ).toBlob()
 

@@ -13,7 +13,7 @@ interface TagLabelPDFProps {
   items: Item[]
   labelWidth?: number // 横幅（mm）デフォルト35
   labelHeight?: number // 縦幅（mm）デフォルト50
-  itemQRCodes?: Record<string, string> // アイテムIDをキーとしたQRコード（Data URL）のマップ
+  itemImages?: Record<string, string> // アイテムIDをキーとした製品画像URL のマップ
 }
 
 // 動的スタイル生成関数
@@ -43,11 +43,11 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '2mm',
+    marginBottom: '0mm',
     borderBottom: '0.5pt solid #cccccc',
-    paddingBottom: '1mm',
-    minHeight: '8mm',
-    maxHeight: '8mm',
+    paddingBottom: '0mm',
+    minHeight: '5mm',
+    maxHeight: '5mm',
   },
   logo: {
     width: 15,
@@ -55,53 +55,71 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
     marginBottom: '0.5mm',
   },
   exhibitionName: {
-    fontSize: 6,
-    color: '#666666',
+    fontSize: 5,
+    color: '#999999',
     lineHeight: 1.2,
     textAlign: 'center',
   },
   itemNo: {
     fontWeight: 'bold',
     color: '#1a56db',
-    marginBottom: '1mm',
+    marginTop: '0.3mm',
+    marginBottom: '0mm',
     textAlign: 'center',
-    lineHeight: 1.4,
+    lineHeight: 1.1,
   },
   itemName: {
     fontSize: 8,
     color: '#333333',
-    marginBottom: '2mm',
+    marginTop: '0mm',
+    marginBottom: '0.5mm',
     textAlign: 'center',
     fontWeight: 'bold',
-    lineHeight: 1.5,
+    lineHeight: 1.2,
   },
   infoSection: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.2mm',
+    gap: '0.5mm',
   },
   infoRow: {
+    fontSize: 5,
+    color: '#888888',
+    lineHeight: 1.3,
+    textAlign: 'left',
+  },
+  compositionRow: {
     fontSize: 6,
     color: '#555555',
-    lineHeight: 1.6,
+    lineHeight: 1.3,
+    textAlign: 'left',
   },
   label_text: {
     fontWeight: 'bold',
     color: '#333333',
     lineHeight: 1.6,
   },
-  qrCodeContainer: {
-    marginTop: '2mm',
+  imageContainer: {
+    marginTop: '0.5mm',
+    marginLeft: '-2mm',
+    marginRight: '-2mm',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
-    minHeight: '10mm',
-    maxHeight: '10mm',
+    width: `${labelWidth}mm`,
+    minHeight: `${labelWidth * 0.8}mm`,
+    maxHeight: `${labelWidth * 0.8}mm`,
   },
-  qrCode: {
-    width: '10mm',
-    height: '10mm',
+  factoryName: {
+    fontSize: 5,
+    color: '#888888',
+    textAlign: 'center',
+    marginTop: '0.5mm',
+    lineHeight: 1.2,
+  },
+  productImage: {
+    width: `${labelWidth}mm`,
+    height: `${labelWidth * 0.8}mm`,
     objectFit: 'contain',
     objectPosition: 'center',
   },
@@ -112,7 +130,7 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
   items,
   labelWidth = 35,
   labelHeight = 50,
-  itemQRCodes
+  itemImages
 }) => {
   // スタイルを動的に生成
   const styles = createStyles(labelWidth, labelHeight)
@@ -190,7 +208,7 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
 
                 {/* アイテム名 */}
                 <Text style={styles.itemName}>
-                  {item.name.length > 20 ? `${item.name.substring(0, 20)}...` : item.name}
+                  {item.name}
                 </Text>
 
                 {/* 詳細情報 */}
@@ -203,29 +221,18 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
                     </Text>
                   )}
 
-                  {/* 混率（複数素材の場合は複数行） */}
+                  {/* 混率（素材ごとに複数段で表示、ラベルなし） */}
                   {item.composition && (() => {
                     const compositionParts = parseComposition(item.composition)
 
                     if (compositionParts.length === 0) {
                       return null
-                    } else if (compositionParts.length === 1) {
-                      // 1つの素材の場合は1行
-                      return (
-                        <Text style={styles.infoRow}>
-                          <Text style={styles.label_text}>混率: </Text>
-                          {compositionParts[0]}
-                        </Text>
-                      )
                     } else {
-                      // 複数素材の場合は複数行
+                      // 素材を複数段で表示（ラベルなし）
                       return (
                         <>
-                          <Text style={styles.infoRow}>
-                            <Text style={styles.label_text}>混率:</Text>
-                          </Text>
                           {compositionParts.map((part, idx) => (
-                            <Text key={idx} style={styles.infoRow}>
+                            <Text key={idx} style={styles.compositionRow}>
                               {part}
                             </Text>
                           ))}
@@ -235,11 +242,18 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
                   })()}
                 </View>
 
-                {/* QRコード */}
-                {itemQRCodes && itemQRCodes[item.id!] && (
-                  <View style={styles.qrCodeContainer}>
-                    <Image src={itemQRCodes[item.id!]} style={styles.qrCode} />
+                {/* 製品画像 */}
+                {itemImages && itemImages[item.id!] && (
+                  <View style={styles.imageContainer}>
+                    <Image src={itemImages[item.id!]} style={styles.productImage} />
                   </View>
+                )}
+
+                {/* 工場名 */}
+                {item.factory && (
+                  <Text style={styles.factoryName}>
+                    {item.factory}
+                  </Text>
                 )}
               </View>
             ))}
