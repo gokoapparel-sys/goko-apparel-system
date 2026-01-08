@@ -83,7 +83,7 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
     gap: '0.5mm',
   },
   infoRow: {
-    fontSize: 5,
+    fontSize: 7,
     color: '#888888',
     lineHeight: 1.3,
     textAlign: 'left',
@@ -93,6 +93,7 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
     color: '#555555',
     lineHeight: 1.3,
     textAlign: 'left',
+    paddingLeft: '4mm',
   },
   label_text: {
     fontWeight: 'bold',
@@ -165,6 +166,22 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
     }
   }
 
+  // アイテム名の長さに応じたフォントサイズを計算
+  const getItemNameFontSize = (itemName: string): number => {
+    const length = itemName.length
+
+    // 文字数に応じてフォントサイズを調整
+    if (length <= 10) {
+      return 8 // 通常サイズ
+    } else if (length <= 15) {
+      return 7 // やや小さく
+    } else if (length <= 20) {
+      return 6 // 小さく
+    } else {
+      return 5 // 最小サイズ
+    }
+  }
+
   // 混率を解析して配列に変換
   const parseComposition = (composition: string | undefined): string[] => {
     if (!composition) return []
@@ -207,7 +224,12 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
                 </Text>
 
                 {/* アイテム名 */}
-                <Text style={styles.itemName}>
+                <Text
+                  style={{
+                    ...styles.itemName,
+                    fontSize: getItemNameFontSize(item.name),
+                  }}
+                >
                   {item.name}
                 </Text>
 
