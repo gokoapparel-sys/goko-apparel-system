@@ -688,32 +688,32 @@ const ItemForm: React.FC = () => {
           </div>
 
           {/* ボタン */}
-          <div className="mt-8 pt-8 border-t flex justify-between">
+          <div className="mt-8 pt-8 border-t flex flex-wrap justify-between gap-2">
             <div>
               {isEditMode && (
                 <button
                   type="button"
                   onClick={handleDelete}
                   disabled={submitting}
-                  className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 sm:px-6 sm:py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-base whitespace-nowrap"
                 >
                   削除
                 </button>
               )}
             </div>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap space-x-2 sm:space-x-4 gap-2">
               <button
                 type="button"
                 onClick={() => navigate('/items')}
                 disabled={submitting}
-                className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-base whitespace-nowrap"
               >
                 キャンセル
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 sm:px-8 sm:py-3 text-xs sm:text-base whitespace-nowrap"
               >
                 {submitting ? '保存中...' : isEditMode ? '更新' : '作成'}
               </button>

@@ -24,6 +24,7 @@ const StaffWebCatalog: React.FC = () => {
   const [itemQRs, setItemQRs] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -343,7 +344,7 @@ const StaffWebCatalog: React.FC = () => {
               />
             </div>
 
-            <div className="item-image">
+            <div className="item-image" onClick={() => item.images && item.images.length > 0 && setEnlargedImage(item.images[0].url)} style={{ cursor: item.images && item.images.length > 0 ? 'pointer' : 'default' }}>
               {item.images && item.images.length > 0 ? (
                 <img src={item.images[0].url} alt={item.name} />
               ) : (
@@ -356,13 +357,13 @@ const StaffWebCatalog: React.FC = () => {
               <div className="item-name">{item.name}</div>
 
               <div className="item-field">
-                <span className="label">混率:</span>
-                <span className="value">{item.composition || '-'}</span>
+                <span className="label">生地名:</span>
+                <span className="value">{item.fabricName || '-'}</span>
               </div>
 
               <div className="item-field">
-                <span className="label">生地No.:</span>
-                <span className="value">{item.fabricNo || '-'}</span>
+                <span className="label">混率:</span>
+                <span className="value">{item.composition || '-'}</span>
               </div>
 
               <div className="price-box">
@@ -395,6 +396,63 @@ const StaffWebCatalog: React.FC = () => {
       <footer className="catalog-footer print-only">
         株式会社 互興 アパレル商品管理システム - 管理者用カタログ（社外秘）
       </footer>
+
+      {/* 画像拡大モーダル */}
+      {enlargedImage && (
+        <div
+          className="image-modal"
+          onClick={() => setEnlargedImage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            cursor: 'pointer'
+          }}
+        >
+          <img
+            src={enlargedImage}
+            alt="拡大画像"
+            style={{
+              maxWidth: '95%',
+              maxHeight: '95%',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setEnlargedImage(null)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              fontSize: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#000',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   )
 }

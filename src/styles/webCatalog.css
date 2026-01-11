@@ -569,13 +569,55 @@
     padding: 20px;
   }
 
+  /* ピックアップセレクターをモバイル対応 */
   .pickup-selector {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .pickup-selector label {
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  .pickup-selector label:first-of-type {
+    margin-top: 0;
+  }
+
+  .pickup-selector select,
+  .pickup-selector input[type="text"] {
+    width: 100%;
+    min-width: auto;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* ナビゲーションボタンのモバイル対応 */
+  .catalog-nav {
+    flex-direction: row;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .nav-btn {
+    padding: 5px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .header-right {
+    width: 100%;
     align-items: stretch;
   }
 
-  .pickup-selector select {
-    max-width: none;
+  .session-qr {
+    width: 100%;
   }
 }
 
@@ -592,5 +634,19 @@
 
   .exhibition-title {
     font-size: 24px;
+  }
+
+  .catalog-header {
+    padding: 20px 15px;
+  }
+
+  .header-left {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .company-info {
+    font-size: 12px;
   }
 }

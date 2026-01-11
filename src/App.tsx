@@ -33,6 +33,8 @@ import ScanItem from './pages/pickups/ScanItem'
 import LoansList from './pages/loans/LoansList'
 import LoanForm from './pages/loans/LoanForm'
 import LoanDetail from './pages/loans/LoanDetail'
+import PickupRankingList from './pages/pickupRankings/PickupRankingList'
+import PickupRankingDetail from './pages/pickupRankings/PickupRankingDetail'
 
 const App: React.FC = () => {
   return (
@@ -268,6 +270,22 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <LoanDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pickup-rankings"
+            element={
+              <PrivateRoute>
+                <PickupRankingList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pickup-rankings/:id"
+            element={
+              <PrivateRoute>
+                <PickupRankingDetail />
               </PrivateRoute>
             }
           />

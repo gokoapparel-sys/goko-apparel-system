@@ -149,25 +149,25 @@ const ItemsList: React.FC = () => {
       {/* ナビゲーションバー */}
       <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex flex-wrap justify-between items-center min-h-[5rem] py-2 gap-2">
             {/* 左側：タイトルと新規作成 */}
-            <div className="flex items-center space-x-6">
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">アイテム管理</h1>
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <h1 className="text-base sm:text-2xl font-black text-gray-900 tracking-tight whitespace-nowrap">アイテム管理</h1>
               <button
                 onClick={() => navigate('/items/new')}
-                className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500"
+                className="inline-flex items-center px-3 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500 text-xs sm:text-base whitespace-nowrap"
               >
                 + 新規作成
               </button>
             </div>
 
             {/* 右側：ユーザー情報とホームボタン */}
-            <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-600 font-medium hidden sm:block">{currentUser?.email}</span>
-              <div className="h-10 w-px bg-gray-300"></div>
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <span className="text-xs sm:text-sm text-gray-600 font-medium hidden md:block">{currentUser?.email}</span>
+              <div className="h-10 w-px bg-gray-300 hidden md:block"></div>
               <button
                 onClick={() => navigate('/')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
+                className="inline-flex items-center px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg text-xs sm:text-base whitespace-nowrap"
               >
                 ← ホーム
               </button>

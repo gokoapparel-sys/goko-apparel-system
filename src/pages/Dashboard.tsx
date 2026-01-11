@@ -19,22 +19,22 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-4">
-              <img src="/goko-logo.svg" alt="GOKO" className="h-6" />
+          <div className="flex flex-wrap justify-between items-center min-h-[5rem] py-2">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <img src="/goko-logo.svg" alt="GOKO" className="h-5 sm:h-6" />
               <div>
-                <h1 className="text-xl font-black text-gray-900 tracking-tight">
+                <h1 className="text-sm sm:text-xl font-black text-gray-900 tracking-tight whitespace-nowrap">
                   アパレル商品管理システム
                 </h1>
                 <p className="text-xs text-gray-600 font-medium">GOKO Co.,Ltd.</p>
               </div>
             </div>
-            <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-600 font-medium hidden sm:block">{currentUser?.email}</span>
-              <div className="h-10 w-px bg-gray-300"></div>
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <span className="text-xs sm:text-sm text-gray-600 font-medium hidden sm:block">{currentUser?.email}</span>
+              <div className="h-10 w-px bg-gray-300 hidden sm:block"></div>
               <button
                 onClick={handleSignOut}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg"
+                className="inline-flex items-center px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg text-xs sm:text-base whitespace-nowrap"
               >
                 ログアウト
               </button>
@@ -106,6 +106,15 @@ const Dashboard: React.FC = () => {
           >
             <h2 className="text-lg font-bold text-blue-200 mb-1">サンプル貸出</h2>
             <p className="text-gray-100 text-xs">貸出・返却のシンプルな管理</p>
+          </div>
+
+          {/* ピックアップランキング */}
+          <div
+            onClick={() => navigate('/pickup-rankings')}
+            className="relative overflow-hidden rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 p-4 cursor-pointer transition-all duration-200 hover:shadow-xl hover:scale-[1.02] border border-slate-500"
+          >
+            <h2 className="text-lg font-bold text-cyan-300 mb-1">ピックアップランキング</h2>
+            <p className="text-slate-200 text-xs">人気アイテムのランキング分析</p>
           </div>
         </div>
 

@@ -18,7 +18,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(test:*)",
-      "Bash(npm run clear-data:*)"
+      "Bash(npm run clear-data:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

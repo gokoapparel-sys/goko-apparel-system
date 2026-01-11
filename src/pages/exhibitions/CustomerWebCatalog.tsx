@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Exhibition, Item } from '../../types'
 import { exhibitionsService } from '../../services/exhibitionsService'
 import { itemsService } from '../../services/itemsService'
@@ -8,12 +8,12 @@ import '../../styles/webCatalog.css'
 
 const CustomerWebCatalog: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
 
   const [exhibition, setExhibition] = useState<Exhibition | null>(null)
   const [items, setItems] = useState<Item[]>([])
   const [itemQRs, setItemQRs] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -100,15 +100,7 @@ const CustomerWebCatalog: React.FC = () => {
             <div className="catalog-badge">お客様用カタログ</div>
           </div>
           <div className="header-right">
-            {/* ナビゲーションボタン */}
-            <div className="catalog-nav no-print">
-              <button onClick={() => navigate('/')} className="nav-btn">
-                ホーム
-              </button>
-              <button onClick={() => navigate(`/exhibitions/${id}`)} className="nav-btn">
-                戻る
-              </button>
-            </div>
+            {/* お客様用カタログではナビゲーションボタンは非表示 */}
           </div>
         </div>
       </header>
@@ -117,7 +109,7 @@ const CustomerWebCatalog: React.FC = () => {
       <div className="items-grid">
         {items.map(item => (
           <div key={item.id} className="item-card">
-            <div className="item-image">
+            <div className="item-image" onClick={() => item.images && item.images.length > 0 && setEnlargedImage(item.images[0].url)} style={{ cursor: item.images && item.images.length > 0 ? 'pointer' : 'default' }}>
               {item.images && item.images.length > 0 ? (
                 <img src={item.images[0].url} alt={item.name} />
               ) : (
@@ -130,13 +122,13 @@ const CustomerWebCatalog: React.FC = () => {
               <div className="item-name">{item.name}</div>
 
               <div className="item-field">
-                <span className="label">混率:</span>
-                <span className="value">{item.composition || '-'}</span>
+                <span className="label">生地名:</span>
+                <span className="value">{item.fabricName || '-'}</span>
               </div>
 
               <div className="item-field">
-                <span className="label">生地No.:</span>
-                <span className="value">{item.fabricNo || '-'}</span>
+                <span className="label">混率:</span>
+                <span className="value">{item.composition || '-'}</span>
               </div>
             </div>
 
@@ -153,6 +145,63 @@ const CustomerWebCatalog: React.FC = () => {
       <footer className="catalog-footer print-only">
         株式会社 互興 - {exhibition.exhibitionName} カタログ
       </footer>
+
+      {/* 画像拡大モーダル */}
+      {enlargedImage && (
+        <div
+          className="image-modal"
+          onClick={() => setEnlargedImage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            cursor: 'pointer'
+          }}
+        >
+          <img
+            src={enlargedImage}
+            alt="拡大画像"
+            style={{
+              maxWidth: '95%',
+              maxHeight: '95%',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setEnlargedImage(null)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              fontSize: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#000',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   )
 }

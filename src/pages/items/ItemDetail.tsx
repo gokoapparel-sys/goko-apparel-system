@@ -163,24 +163,24 @@ const ItemDetail: React.FC = () => {
       {/* ナビゲーションバー */}
       <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20">
-            <div className="flex items-center">
+          <div className="flex flex-wrap justify-between items-center min-h-[5rem] py-2 gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => navigate('/items')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
+                className="inline-flex items-center px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg text-xs sm:text-base whitespace-nowrap"
               >
                 ← 一覧
               </button>
-              <h1 className="text-xl font-bold text-primary-700 ml-6">アイテム詳細</h1>
+              <h1 className="text-sm sm:text-xl font-bold text-primary-700 whitespace-nowrap">アイテム詳細</h1>
               <button
                 onClick={() => navigate(`/items/${id}`)}
-                className="ml-4 inline-flex items-center px-5 py-2.5 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-700 transition-all shadow-md"
+                className="inline-flex items-center px-3 py-2 sm:px-5 sm:py-2.5 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-700 transition-all shadow-md text-xs sm:text-base whitespace-nowrap"
               >
                 編集
               </button>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">{currentUser?.email}</span>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="text-xs sm:text-sm text-gray-700 hidden sm:block">{currentUser?.email}</span>
             </div>
           </div>
         </div>
