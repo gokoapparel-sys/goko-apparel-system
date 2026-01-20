@@ -63,10 +63,9 @@ const PickupRankingDetail: React.FC = () => {
         }
       })
 
-      // アイテム情報を取得
+      // アイテム情報を取得（ピックアップされたアイテムのみを直接取得）
       const itemIds = Array.from(itemPickupMap.keys())
-      const allItemsResult = await itemsService.listItems()
-      const items = allItemsResult.items.filter(item => itemIds.includes(item.id!))
+      const items = await itemsService.getItemsByIds(itemIds)
 
       // ランキングデータを作成
       const rankingData: RankingItem[] = items.map(item => {
