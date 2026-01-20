@@ -24,7 +24,6 @@ const PickupRankingDetail: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [selectedItem, setSelectedItem] = useState<RankingItem | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
-  const [totalPickups, setTotalPickups] = useState(0)
 
   useEffect(() => {
     if (id) {
@@ -80,11 +79,7 @@ const PickupRankingDetail: React.FC = () => {
       // ピックアップ数でソート
       rankingData.sort((a, b) => b.pickupCount - a.pickupCount)
 
-      // 全ピックアップリスト数を計算
-      const total = pickups.length
-
       setRankings(rankingData)
-      setTotalPickups(total)
 
     } catch (error) {
       console.error('データ読み込みエラー:', error)
@@ -219,9 +214,7 @@ const PickupRankingDetail: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rankings.map((ranking, index) => {
-                const pickupRate = totalPickups > 0 ? Math.round((ranking.pickupCount / totalPickups) * 100) : 0
-                return (
+              {rankings.map((ranking, index) => (
                   <div
                     key={ranking.item.id}
                     className="relative bg-gradient-to-br from-gray-50 to-blue-50 border-2 border-gray-300 rounded-xl p-5 hover:shadow-xl hover:border-gray-400 transition-all"
@@ -258,11 +251,11 @@ const PickupRankingDetail: React.FC = () => {
                       <p className="text-sm font-semibold text-gray-600">{ranking.item.itemNo}</p>
                       <p className="text-base font-bold text-gray-900">{ranking.item.name}</p>
 
-                      {/* ピックアップ率表示 */}
+                      {/* ピックアップ回数表示 */}
                       <div className="pt-2 border-t-2 border-gray-300">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-semibold text-gray-600">ピックアップ率</span>
-                          <span className="text-2xl font-black text-slate-800">{pickupRate}%</span>
+                          <span className="text-sm font-semibold text-gray-600">ピックアップ回数</span>
+                          <span className="text-2xl font-black text-slate-800">{ranking.pickupCount}回</span>
                         </div>
 
                         {/* 詳細ボタン */}
@@ -276,8 +269,7 @@ const PickupRankingDetail: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                )
-              })}
+              ))}
             </div>
           )}
         </div>
