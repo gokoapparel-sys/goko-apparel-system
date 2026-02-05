@@ -258,6 +258,7 @@ export function generateStaffCatalogHTML({ exhibition, items, imageBase64Map }: 
           letter-spacing: 0.5px;
           padding-bottom: 3px;
           border-bottom: 1px solid #e2e8f0;
+          text-align: center;
         }
 
         .item-name {
@@ -267,6 +268,7 @@ export function generateStaffCatalogHTML({ exhibition, items, imageBase64Map }: 
           margin-bottom: 5px;
           line-height: 1.3;
           min-height: 22px;
+          text-align: center;
         }
 
         .item-field {
@@ -327,23 +329,23 @@ export function generateStaffCatalogHTML({ exhibition, items, imageBase64Map }: 
               <div class="item-card">
                 <div class="item-image">
                   ${(() => {
-                    if (item.images && item.images.length > 0) {
-                      const imageUrl = item.images[0].url
-                      const base64Image = imageBase64Map && imageBase64Map[imageUrl]
+      if (item.images && item.images.length > 0) {
+        const imageUrl = item.images[0].url
+        const base64Image = imageBase64Map && imageBase64Map[imageUrl]
 
-                      if (base64Image && base64Image.startsWith('data:image/')) {
-                        return `<img src="${base64Image}" alt="${item.name}" />`
-                      } else {
-                        console.warn('画像データが見つかりません:', item.itemNo, imageUrl)
-                        return '<div style="color: #999; font-size: 11px;">画像なし</div>'
-                      }
-                    } else {
-                      return '<div style="color: #999; font-size: 11px;">画像なし</div>'
-                    }
-                  })()}
+        if (base64Image && base64Image.startsWith('data:image/')) {
+          return `<img src="${base64Image}" alt="${item.name}" />`
+        } else {
+          console.warn('画像データが見つかりません:', item.itemNo, imageUrl)
+          return '<div style="color: #999; font-size: 11px;">画像なし</div>'
+        }
+      } else {
+        return '<div style="color: #999; font-size: 11px;">画像なし</div>'
+      }
+    })()}
                 </div>
                 <div class="item-no">${item.itemNo}</div>
-                <div class="item-name">${item.name}</div>
+                <div class="item-name">${item.name.replace(/[\s\u3000]+/g, '<br />')}</div>
                 <div class="item-field">
                   <span class="field-label">混率:</span>
                   <span class="field-value">${item.composition || '-'}</span>

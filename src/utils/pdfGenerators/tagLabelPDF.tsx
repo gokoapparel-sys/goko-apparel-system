@@ -5,7 +5,10 @@ import { Item } from '../../types'
 // 日本語フォント登録
 Font.register({
   family: 'NotoSansJP',
-  src: '/fonts/NotoSansJP-Regular.ttf'
+  fonts: [
+    { src: '/fonts/NotoSansJP-Regular.ttf' },
+    { src: '/fonts/NotoSansJP-Bold.ttf', fontWeight: 'bold' }
+  ]
 })
 
 interface TagLabelPDFProps {
@@ -33,7 +36,7 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
     width: `${labelWidth}mm`,
     height: `${labelHeight}mm`,
     border: '1pt solid #cccccc',
-    padding: '2mm',
+    padding: '1.5mm', // パディング少し減らしてスペース確保
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -56,13 +59,13 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
   },
   exhibitionName: {
     fontSize: 5,
-    color: '#999999',
+    color: '#000000',
     lineHeight: 1.2,
     textAlign: 'center',
   },
   itemNo: {
-    fontWeight: 'bold',
-    color: '#1a56db',
+    fontWeight: 'bold', // Boldフォントが適用される
+    color: '#000000',
     marginTop: '0.3mm',
     marginBottom: '0mm',
     textAlign: 'center',
@@ -70,11 +73,11 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
   },
   itemName: {
     fontSize: 8,
-    color: '#333333',
+    color: '#000000',
     marginTop: '0mm',
     marginBottom: '0.5mm',
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: 'bold', // Boldフォントが適用される
     lineHeight: 1.2,
   },
   infoSection: {
@@ -84,20 +87,20 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
   },
   infoRow: {
     fontSize: 7,
-    color: '#888888',
+    color: '#000000',
     lineHeight: 1.3,
     textAlign: 'left',
   },
   compositionRow: {
     fontSize: 6,
-    color: '#555555',
+    color: '#000000',
     lineHeight: 1.3,
     textAlign: 'left',
     paddingLeft: '4mm',
   },
   label_text: {
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#000000',
     lineHeight: 1.6,
   },
   imageContainer: {
@@ -113,7 +116,7 @@ const createStyles = (labelWidth: number, labelHeight: number) => StyleSheet.cre
   },
   factoryName: {
     fontSize: 5,
-    color: '#888888',
+    color: '#000000',
     textAlign: 'center',
     marginTop: '0.5mm',
     lineHeight: 1.2,
@@ -154,15 +157,15 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
   const getItemNoFontSize = (itemNo: string): number => {
     const length = itemNo.length
 
-    // 文字数に応じてフォントサイズを調整
+    // 文字数に応じてフォントサイズを調整 (Boldになったので少しサイズ調整)
     if (length <= 12) {
-      return 11 // 通常サイズ
+      return 12 // 通常サイズ (11->12)
     } else if (length <= 15) {
-      return 9 // やや小さく
+      return 10 // やや小さく
     } else if (length <= 20) {
-      return 7 // 小さく
+      return 8 // 小さく
     } else {
-      return 6 // 最小サイズ
+      return 7 // 最小サイズ
     }
   }
 
@@ -188,7 +191,7 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
 
     // スペースや全角スペースで分割し、空文字を除外
     const parts = composition
-      .split(/[\s　]+/)
+      .split(/[\s\u3000]+/)
       .filter((part) => part.trim().length > 0)
 
     return parts
@@ -207,76 +210,75 @@ export const TagLabelPDF: React.FC<TagLabelPDFProps> = ({
           <View style={styles.labelGrid}>
             {pageItems.map((item, index) => (
               <View key={index} style={styles.label}>
-                {/* ヘッダー: GOKOロゴ + 展示会名 */}
-                <View style={styles.labelHeader}>
+                {/* ヘッダー: GOKOロゴ + 展示会名（一番上・高さ固定） */}
+                <View style={{ ...styles.labelHeader, height: '7%', justifyContent: 'flex-start' }}>
                   <Image src="/goko-logo.svg" style={styles.logo} />
                   <Text style={styles.exhibitionName}>{exhibitionName}</Text>
                 </View>
 
-                {/* 品番（必ず1行、長さに応じてフォントサイズ自動調整） */}
-                <Text
-                  style={{
-                    ...styles.itemNo,
-                    fontSize: getItemNoFontSize(item.itemNo),
-                  }}
-                >
-                  {item.itemNo}
-                </Text>
-
-                {/* アイテム名 */}
-                <Text
-                  style={{
-                    ...styles.itemName,
-                    fontSize: getItemNameFontSize(item.name),
-                  }}
-                >
-                  {item.name}
-                </Text>
-
-                {/* 詳細情報 */}
-                <View style={styles.infoSection}>
-                  {/* 生地 */}
-                  {item.fabricNo && (
-                    <Text style={styles.infoRow}>
-                      <Text style={styles.label_text}>生地: </Text>
-                      {item.fabricNo}
-                    </Text>
-                  )}
-
-                  {/* 混率（素材ごとに複数段で表示、ラベルなし） */}
-                  {item.composition && (() => {
-                    const compositionParts = parseComposition(item.composition)
-
-                    if (compositionParts.length === 0) {
-                      return null
-                    } else {
-                      // 素材を複数段で表示（ラベルなし）
-                      return (
-                        <>
-                          {compositionParts.map((part, idx) => (
-                            <Text key={idx} style={styles.compositionRow}>
-                              {part}
-                            </Text>
-                          ))}
-                        </>
-                      )
-                    }
-                  })()}
+                {/* 品番（上部固定、目立つように）- フォントサイズ大＆Bold */}
+                <View style={{ height: '10%', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text
+                    style={{
+                      ...styles.itemNo,
+                      fontSize: getItemNoFontSize(item.itemNo),
+                      color: '#000000',
+                    }}
+                  >
+                    {item.itemNo}
+                  </Text>
                 </View>
 
-                {/* 製品画像 */}
-                {itemImages && itemImages[item.id!] && (
-                  <View style={styles.imageContainer}>
-                    <Image src={itemImages[item.id!]} style={styles.productImage} />
-                  </View>
-                )}
-
-                {/* 工場名 */}
-                {item.factory && (
-                  <Text style={styles.factoryName}>
-                    {item.factory}
+                {/* アイテム名（品番の下）- 2行表示用にエリア拡大 */}
+                <View style={{ height: '12%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: '1mm' }}>
+                  <Text
+                    style={{
+                      ...styles.itemName,
+                      fontSize: getItemNameFontSize(item.name),
+                      marginBottom: 0,
+                      maxLines: 2,
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {item.name.replace(/[\s\u3000]+/g, '\n')}
                   </Text>
-                )}
+                </View>
+
+                {/* 生地情報と混率 */}
+                <View style={{ ...styles.infoSection, height: '15%', justifyContent: 'flex-start' }}>
+                  {/* 生地 */}
+                  <Text style={styles.infoRow}>
+                    <Text style={styles.label_text}>生地: </Text>
+                    {item.fabricNo || '-'}
+                  </Text>
+
+                  {/* 混率 */}
+                  {item.composition && (
+                    <View style={{ marginTop: '0.5mm' }}>
+                      {parseComposition(item.composition).map((part, idx) => (
+                        <Text key={idx} style={styles.compositionRow}>
+                          {part}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {/* 製品画像（中央〜下部エリア）- エリア拡大 (44% -> 50%) */}
+                <View style={{ height: '50%', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '0.5mm' }}>
+                  {itemImages && itemImages[item.id!] ? (
+                    <Image src={itemImages[item.id!]} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  ) : (
+                    <Text style={{ fontSize: 6, color: '#ccc' }}>No Image</Text>
+                  )}
+                </View>
+
+                {/* 工場名（一番下） */}
+                <View style={{ height: '6%', justifyContent: 'flex-end' }}>
+                  <Text style={styles.factoryName}>
+                    {item.factory || ''}
+                  </Text>
+                </View>
               </View>
             ))}
           </View>

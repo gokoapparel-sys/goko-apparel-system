@@ -346,6 +346,7 @@
   letter-spacing: 1px;
   padding-bottom: 10px;
   border-bottom: 2px solid #e2e8f0;
+  text-align: center;
 }
 
 .item-name {
@@ -355,6 +356,7 @@
   margin-bottom: 10px;
   line-height: 1.4;
   min-height: 38px;
+  text-align: center;
 }
 
 .customer-catalog .item-name {

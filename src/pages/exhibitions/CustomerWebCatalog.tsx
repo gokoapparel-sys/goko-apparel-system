@@ -119,7 +119,7 @@ const CustomerWebCatalog: React.FC = () => {
 
             <div className="item-info">
               <div className="item-no">{item.itemNo}</div>
-              <div className="item-name">{item.name}</div>
+              <div className="item-name" style={{ whiteSpace: 'pre-wrap' }}>{item.name.replace(/[\s\u3000]+/g, '\n')}</div>
 
               <div className="item-field">
                 <span className="label">生地名:</span>
