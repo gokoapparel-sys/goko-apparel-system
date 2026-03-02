@@ -353,6 +353,14 @@ export function generateCustomerCatalogHTML({ exhibition, items, imageBase64Map 
                   <span class="field-label">生地No.:</span>
                   <span class="field-value">${item.fabricNo || '-'}</span>
                 </div>
+                <div class="item-field">
+                  <span class="field-label">枚数条件:</span>
+                  <span class="field-value">${item.moq || '-'}</span>
+                </div>
+                <div class="item-field">
+                  <span class="field-label">見積り:</span>
+                  <span class="field-value">${item.referencePrice ? `¥${item.referencePrice.toLocaleString()}` : '-'}</span>
+                </div>
               </div>
             `).join('')}
           </div>
