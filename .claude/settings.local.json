@@ -20,7 +20,9 @@
       "Bash(test:*)",
       "Bash(npm run clear-data:*)",
       "Bash(firebase projects:list:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []
