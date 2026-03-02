@@ -228,14 +228,14 @@ export function generateCustomerCatalogHTML({ exhibition, items, imageBase64Map 
 
         .item-image {
           width: 100%;
-          height: 140px;
+          height: 115px;
           background: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
           color: #999;
           font-size: 10px;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
           border-radius: 6px;
           overflow: hidden;
           border: 1px solid #e5e7eb;
@@ -250,23 +250,26 @@ export function generateCustomerCatalogHTML({ exhibition, items, imageBase64Map 
         }
 
         .item-no {
-          font-size: 20px;
+          font-size: 16px;
           font-weight: bold;
           color: #064e3b;
-          margin-bottom: 4px;
+          margin-bottom: 3px;
           letter-spacing: 0.5px;
-          padding-bottom: 4px;
+          padding-bottom: 3px;
           border-bottom: 2px solid #d1fae5;
           text-align: center;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .item-name {
-          font-size: 13px;
+          font-size: 11px;
           font-weight: bold;
           color: #059669;
-          margin-bottom: 6px;
-          line-height: 1.4;
-          min-height: 36px;
+          margin-bottom: 4px;
+          line-height: 1.3;
+          min-height: 28px;
           text-align: center;
         }
 
@@ -332,7 +335,7 @@ export function generateCustomerCatalogHTML({ exhibition, items, imageBase64Map 
         const imageUrl = item.images[0].url
         const base64Image = imageBase64Map && imageBase64Map[imageUrl]
 
-        if (base64Image && base64Image.startsWith('data:image/')) {
+        if (base64Image && (base64Image.startsWith('data:image/') || base64Image.startsWith('blob:'))) {
           return `<img src="${base64Image}" alt="${item.name}" />`
         } else {
           console.warn('画像データが見つかりません:', item.itemNo, imageUrl)
@@ -344,7 +347,7 @@ export function generateCustomerCatalogHTML({ exhibition, items, imageBase64Map 
     })()}
                 </div>
                 <div class="item-no">${item.itemNo}</div>
-                <div class="item-name">${item.name.replace(/[\s\u3000]+/g, '<br />')}</div>
+                <div class="item-name">${item.name.replace(/[\s\u3000（(]/g, (match) => match === ' ' || match === '　' ? '' : '<br />' + match)}</div>
                 <div class="item-field">
                   <span class="field-label">混率:</span>
                   <span class="field-value">${item.composition || '-'}</span>

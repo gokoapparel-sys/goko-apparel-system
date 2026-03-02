@@ -184,7 +184,7 @@ export function generateStaffCatalogHTML({ exhibition, items, imageBase64Map }: 
           background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
           border-radius: 6px;
           box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
-          text-align: center;
+          text-align: left;
         }
 
         .page-title {
@@ -259,6 +259,9 @@ export function generateStaffCatalogHTML({ exhibition, items, imageBase64Map }: 
           padding-bottom: 3px;
           border-bottom: 1px solid #e2e8f0;
           text-align: center;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .item-name {
@@ -333,7 +336,7 @@ export function generateStaffCatalogHTML({ exhibition, items, imageBase64Map }: 
         const imageUrl = item.images[0].url
         const base64Image = imageBase64Map && imageBase64Map[imageUrl]
 
-        if (base64Image && base64Image.startsWith('data:image/')) {
+        if (base64Image && (base64Image.startsWith('data:image/') || base64Image.startsWith('blob:'))) {
           return `<img src="${base64Image}" alt="${item.name}" />`
         } else {
           console.warn('画像データが見つかりません:', item.itemNo, imageUrl)
@@ -345,7 +348,7 @@ export function generateStaffCatalogHTML({ exhibition, items, imageBase64Map }: 
     })()}
                 </div>
                 <div class="item-no">${item.itemNo}</div>
-                <div class="item-name">${item.name.replace(/[\s\u3000]+/g, '<br />')}</div>
+                <div class="item-name">${item.name.replace(/[\s\u3000（(]/g, (match) => match === ' ' || match === '　' ? '' : '<br />' + match)}</div>
                 <div class="item-field">
                   <span class="field-label">混率:</span>
                   <span class="field-value">${item.composition || '-'}</span>

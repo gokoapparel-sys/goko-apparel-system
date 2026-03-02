@@ -17,6 +17,26 @@ export async function generatePDFFromHTML(
   container.innerHTML = htmlContent
   document.body.appendChild(container)
 
+  // 全画像のロード完了を待つ
+  const allImages = Array.from(container.querySelectorAll('img'))
+  if (allImages.length > 0) {
+    await Promise.all(
+      allImages.map(
+        img =>
+          new Promise<void>(resolve => {
+            if (img.complete && img.naturalWidth > 0) {
+              resolve()
+            } else {
+              img.onload = () => resolve()
+              img.onerror = () => resolve() // エラーでもブロックしない
+            }
+          })
+      )
+    )
+    // ブラウザの描画サイクルを1フレーム待つ
+    await new Promise(resolve => requestAnimationFrame(resolve))
+  }
+
   try {
     // A4サイズの設定（mm）
     const a4Width = orientation === 'landscape' ? 297 : 210

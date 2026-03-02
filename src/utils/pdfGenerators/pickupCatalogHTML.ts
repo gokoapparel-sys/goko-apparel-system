@@ -250,22 +250,27 @@ export function generatePickupCatalogHTML({ pickup, items, imageBase64Map }: Pic
         }
 
         .item-no {
-          font-size: 20px;
+          font-size: 16px;
           font-weight: bold;
           color: #064e3b;
           margin-bottom: 4px;
           letter-spacing: 0.5px;
           padding-bottom: 4px;
           border-bottom: 2px solid #d1fae5;
+          text-align: center;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .item-name {
-          font-size: 13px;
+          font-size: 11px;
           font-weight: bold;
           color: #059669;
           margin-bottom: 6px;
-          line-height: 1.4;
-          min-height: 36px;
+          line-height: 1.3;
+          min-height: 28px;
+          text-align: center;
         }
 
         .item-field {
@@ -331,7 +336,7 @@ export function generatePickupCatalogHTML({ pickup, items, imageBase64Map }: Pic
                       const imageUrl = item.images[0].url
                       const base64Image = imageBase64Map && imageBase64Map[imageUrl]
 
-                      if (base64Image && base64Image.startsWith('data:image/')) {
+                      if (base64Image && (base64Image.startsWith('data:image/') || base64Image.startsWith('blob:'))) {
                         return `<img src="${base64Image}" alt="${item.name}" />`
                       } else {
                         console.warn('画像データが見つかりません:', item.itemNo, imageUrl)
@@ -343,7 +348,7 @@ export function generatePickupCatalogHTML({ pickup, items, imageBase64Map }: Pic
                   })()}
                 </div>
                 <div class="item-no">${item.itemNo}</div>
-                <div class="item-name">${item.name}</div>
+                <div class="item-name">${item.name.replace(/[\s\u3000（(]/g, (match) => match === ' ' || match === '　' ? '' : '<br />' + match)}</div>
                 <div class="item-field">
                   <span class="field-label">混率:</span>
                   <span class="field-value">${item.composition || '-'}</span>
