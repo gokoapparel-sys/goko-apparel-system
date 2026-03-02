@@ -30,22 +30,22 @@ function toItem(id: string, d: any): Item {
     typeof d?.price === 'number'
       ? d.price
       : Number.isFinite(Number(d?.price))
-      ? Number(d.price)
-      : 0
+        ? Number(d.price)
+        : 0
 
   const dollarPriceNum =
     typeof d?.dollarPrice === 'number'
       ? d.dollarPrice
       : Number.isFinite(Number(d?.dollarPrice))
-      ? Number(d.dollarPrice)
-      : undefined
+        ? Number(d.dollarPrice)
+        : undefined
 
   const referencePriceNum =
     typeof d?.referencePrice === 'number'
       ? d.referencePrice
       : Number.isFinite(Number(d?.referencePrice))
-      ? Number(d.referencePrice)
-      : undefined
+        ? Number(d.referencePrice)
+        : undefined
 
   return {
     id,
@@ -73,6 +73,7 @@ function toItem(id: string, d: any): Item {
     createdAt: d?.createdAt?.toDate?.() instanceof Date ? d.createdAt.toDate() : d?.createdAt instanceof Date ? d.createdAt : undefined,
     updatedAt: d?.updatedAt?.toDate?.() instanceof Date ? d.updatedAt.toDate() : d?.updatedAt instanceof Date ? d.updatedAt : undefined,
     createdBy: d?.createdBy ? String(d.createdBy) : undefined,
+    plannerId: d?.plannerId ? String(d.plannerId) : undefined,
   }
 }
 
@@ -195,6 +196,36 @@ export const itemsService = {
       return null
     } catch (error) {
       console.error('アイテム取得エラー:', error)
+      throw error
+    }
+  },
+
+  /**
+   * 複数のアイテムをID指定で取得
+   */
+  async getItemsByIds(ids: string[]): Promise<Item[]> {
+    if (!ids || ids.length === 0) return []
+
+    try {
+      // 10個ずつのチャンクに分けて並列取得（Firestoreの制限回避とパフォーマンス最適化）
+      const chunkSize = 10
+      const chunks = []
+
+      for (let i = 0; i < ids.length; i += chunkSize) {
+        chunks.push(ids.slice(i, i + chunkSize))
+      }
+
+      const results = await Promise.all(
+        chunks.map(async (chunkIds) => {
+          const promises = chunkIds.map(id => this.getItem(id))
+          return await Promise.all(promises)
+        })
+      )
+
+      // nullを除外してフラット化
+      return results.flat().filter((item): item is Item => item !== null)
+    } catch (error) {
+      console.error('複数アイテム取得エラー:', error)
       throw error
     }
   },

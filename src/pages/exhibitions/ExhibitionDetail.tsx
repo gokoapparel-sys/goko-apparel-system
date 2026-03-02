@@ -22,6 +22,7 @@ const ExhibitionDetail: React.FC = () => {
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [createdByFilter, setCreatedByFilter] = useState('')
+  const [plannerIdFilter, setPlannerIdFilter] = useState('')
   const [savingCatalog, setSavingCatalog] = useState(false)
 
   useEffect(() => {
@@ -350,24 +351,24 @@ const ExhibitionDetail: React.FC = () => {
       {/* ナビゲーションバー */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
+          <div className="flex flex-wrap justify-between items-center min-h-[4rem] py-2 gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => navigate('/exhibitions')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
+                className="inline-flex items-center px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg text-xs sm:text-base whitespace-nowrap"
               >
                 ← 一覧
               </button>
-              <h1 className="text-xl font-bold text-primary-700 ml-6">展示会詳細</h1>
+              <h1 className="text-sm sm:text-xl font-bold text-primary-700 whitespace-nowrap">展示会詳細</h1>
               <button
                 onClick={() => navigate(`/exhibitions/${id}`)}
-                className="ml-4 inline-flex items-center px-5 py-2.5 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-700 transition-all shadow-md"
+                className="inline-flex items-center px-3 py-2 sm:px-5 sm:py-2.5 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-700 transition-all shadow-md text-xs sm:text-base whitespace-nowrap"
               >
                 編集
               </button>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">{currentUser?.email}</span>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="text-xs sm:text-sm text-gray-700 hidden sm:block">{currentUser?.email}</span>
             </div>
           </div>
         </div>
@@ -456,7 +457,13 @@ const ExhibitionDetail: React.FC = () => {
                   管理者用PDF出力
                 </button>
                 <button
-                  onClick={() => navigate(`/exhibitions/${id}/landing`)}
+                  onClick={() => {
+                    if (exhibition.description && exhibition.description.startsWith('/')) {
+                      navigate(exhibition.description)
+                    } else {
+                      navigate(`/exhibitions/${id}/landing`)
+                    }
+                  }}
                   className="inline-flex items-center px-5 py-2.5 bg-purple-700 text-white font-medium rounded-lg hover:bg-purple-800 transition-all shadow-sm"
                 >
                   展示会LP
@@ -508,6 +515,18 @@ const ExhibitionDetail: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                <select
+                  value={plannerIdFilter}
+                  onChange={(e) => setPlannerIdFilter(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">企画担当者：絞り込み</option>
+                  {[...new Set(allItems.map(item => item.plannerId).filter(Boolean))].map(plannerId => (
+                    <option key={plannerId} value={plannerId}>
+                      {plannerId}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* 保存ボタン */}
@@ -547,6 +566,9 @@ const ExhibitionDetail: React.FC = () => {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       工場
                     </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      企画担当者ID
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -554,17 +576,17 @@ const ExhibitionDetail: React.FC = () => {
                     .filter(
                       (item) =>
                         (item.itemNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-                        (createdByFilter === '' || item.createdBy === createdByFilter)
+                          item.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+                        (createdByFilter === '' || item.createdBy === createdByFilter) &&
+                        (plannerIdFilter === '' || item.plannerId === plannerIdFilter)
                     )
                     .map((item) => (
                       <tr
                         key={item.id}
-                        className={`hover:bg-gray-50 ${
-                          selectedItemIds.includes(item.id!)
+                        className={`hover:bg-gray-50 ${selectedItemIds.includes(item.id!)
                             ? 'bg-blue-50'
                             : ''
-                        }`}
+                          }`}
                       >
                         <td className="px-4 py-3">
                           <input
@@ -591,6 +613,9 @@ const ExhibitionDetail: React.FC = () => {
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {item.factory || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {item.plannerId || '-'}
                         </td>
                       </tr>
                     ))}

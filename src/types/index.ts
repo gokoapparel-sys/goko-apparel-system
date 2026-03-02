@@ -40,6 +40,7 @@ export interface Item {
   createdAt?: Timestamp
   updatedAt?: Timestamp
   createdBy?: string
+  plannerId?: string // 企画担当者ID
 }
 
 // アイテム型（詳細版 - 将来の拡張用）

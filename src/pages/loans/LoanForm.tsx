@@ -26,10 +26,13 @@ const LoanForm: React.FC = () => {
 
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([])
   const [selectedExhibitionId, setSelectedExhibitionId] = useState('')
-  const [allItems, setAllItems] = useState<Item[]>([])
-  const [filteredItems, setFilteredItems] = useState<Item[]>([])
+  const [availableItems, setAvailableItems] = useState<Item[]>([])
+  const [itemSearchQuery, setItemSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
+  const [loadingItems, setLoadingItems] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [activeLoans, setActiveLoans] = useState<Loan[]>([])
+  const [selectedItems, setSelectedItems] = useState<Item[]>([])
 
   useEffect(() => {
     loadData()
@@ -43,9 +46,9 @@ const LoanForm: React.FC = () => {
       const { exhibitions: exData } = await exhibitionsService.listExhibitions()
       setExhibitions(exData)
 
-      // アイテム一覧を読み込み
-      const { items: itemsData } = await itemsService.listItems({ status: 'active' })
-      setAllItems(itemsData)
+      // 貸出中のアイテム一覧を取得
+      const { loans: loansData } = await loansService.listLoans({ status: 'borrowed' })
+      setActiveLoans(loansData)
 
       // 編集モードの場合、既存データを読み込み
       if (id) {
@@ -63,6 +66,18 @@ const LoanForm: React.FC = () => {
             notes: loan.notes || '',
             status: loan.status,
           })
+
+          // 編集時は対象のアイテム情報を取得してセット
+          const itemData = await itemsService.getItem(loan.itemId)
+          if (itemData) {
+            setSelectedItems([itemData])
+          }
+
+          // 既存の貸出アイテムが含まれる展示会を自動選択
+          const foundEx = exData.find(ex => ex.catalogItemIds?.includes(loan.itemId))
+          if (foundEx) {
+            setSelectedExhibitionId(foundEx.id!)
+          }
         } else {
           alert('貸出記録が見つかりません')
           navigate('/loans')
@@ -77,21 +92,33 @@ const LoanForm: React.FC = () => {
   }
 
   useEffect(() => {
-    // 展示会が選択されたら、そのカタログアイテムでフィルタリング
-    if (selectedExhibitionId) {
-      const selectedExhibition = exhibitions.find((ex) => ex.id === selectedExhibitionId)
-      if (selectedExhibition && selectedExhibition.catalogItemIds) {
-        const filtered = allItems.filter((item) =>
-          selectedExhibition.catalogItemIds!.includes(item.id!)
-        )
-        setFilteredItems(filtered)
-      } else {
-        setFilteredItems([])
+    const fetchItems = async () => {
+      setLoadingItems(true)
+      try {
+        if (!selectedExhibitionId) {
+          // 展示会が選択されていない場合は全アイテムを取得
+          const allItems = await itemsService.listAllItems({ status: 'active' })
+          setAvailableItems(allItems)
+        } else {
+          // 展示会が選択されている場合はそのアイテムのみ取得
+          const ex = exhibitions.find(e => e.id === selectedExhibitionId)
+          if (ex && ex.catalogItemIds && ex.catalogItemIds.length > 0) {
+            const items = await itemsService.getItemsByIds(ex.catalogItemIds)
+            setAvailableItems(items)
+          } else {
+            setAvailableItems([])
+          }
+        }
+      } catch (error) {
+        console.error('アイテム取得エラー:', error)
+        alert('アイテムリストの取得に失敗しました')
+      } finally {
+        setLoadingItems(false)
       }
-    } else {
-      setFilteredItems([])
     }
-  }, [selectedExhibitionId, exhibitions, allItems])
+
+    fetchItems()
+  }, [selectedExhibitionId, exhibitions])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -101,24 +128,54 @@ const LoanForm: React.FC = () => {
       ...prev,
       [name]: value,
     }))
+  }
 
-    // アイテムが変更された場合、アイテム情報を設定
-    if (name === 'itemId' && value) {
-      const selectedItem = allItems.find((item) => item.id === value)
-      if (selectedItem) {
-        setFormData((prev) => ({
-          ...prev,
-          itemNo: selectedItem.itemNo,
-          itemName: selectedItem.name,
-        }))
-      }
+  const handleItemClick = (item: Item) => {
+    if (submitting) return
+
+    // 貸出中チェック（編集モードで自分自身のアイテムならOK）
+    const activeLoan = activeLoans.find(l => l.itemId === item.id && l.status === 'borrowed')
+    const isSelfLoan = isEditMode && activeLoan && activeLoan.itemId === formData.itemId
+    if (activeLoan && !isSelfLoan) {
+      return // 貸出中は選択不可
+    }
+
+    if (isEditMode) {
+      // 編集モード：単一選択（入れ替え）
+      setSelectedItems([item])
+      setFormData(prev => ({
+        ...prev,
+        itemId: item.id!,
+        itemNo: item.itemNo,
+        itemName: item.name,
+      }))
+    } else {
+      // 新規モード：複数選択（トグル）
+      setSelectedItems(prev => {
+        const exists = prev.find(i => i.id === item.id)
+        if (exists) {
+          return prev.filter(i => i.id !== item.id)
+        } else {
+          return [...prev, item]
+        }
+      })
+    }
+  }
+
+  const handleRemoveItem = (itemId: string) => {
+    if (submitting) return
+    setSelectedItems(prev => prev.filter(i => i.id !== itemId))
+
+    // 編集モードで削除された場合はフォームデータもクリア（必須チェックで引っかかるようにする）
+    if (isEditMode && formData.itemId === itemId) {
+      setFormData(prev => ({ ...prev, itemId: '', itemNo: '', itemName: '' }))
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.itemId) {
+    if (selectedItems.length === 0) {
       alert('アイテムを選択してください')
       return
     }
@@ -141,10 +198,8 @@ const LoanForm: React.FC = () => {
     try {
       setSubmitting(true)
 
-      const loanData: Omit<Loan, 'id' | 'createdAt' | 'updatedAt'> = {
-        itemId: formData.itemId,
-        itemNo: formData.itemNo,
-        itemName: formData.itemName,
+      // 共通のデータ
+      const baseData = {
         staff: formData.staff,
         borrowDate: Timestamp.fromDate(new Date(formData.borrowDate)),
         purpose: formData.purpose,
@@ -154,11 +209,30 @@ const LoanForm: React.FC = () => {
       }
 
       if (isEditMode) {
+        // 更新：単一レコード
+        const targetItem = selectedItems[0]
+        const loanData: Omit<Loan, 'id' | 'createdAt' | 'updatedAt'> = {
+          ...baseData,
+          itemId: targetItem.id!,
+          itemNo: targetItem.itemNo,
+          itemName: targetItem.name,
+        }
         await loansService.updateLoan(id, loanData)
         alert('貸出記録を更新しました')
       } else {
-        await loansService.createLoan(loanData)
-        alert('貸出記録を作成しました')
+        // 新規：複数レコード作成
+        const promises = selectedItems.map(item => {
+          const loanData: Omit<Loan, 'id' | 'createdAt' | 'updatedAt'> = {
+            ...baseData,
+            itemId: item.id!,
+            itemNo: item.itemNo,
+            itemName: item.name,
+          }
+          return loansService.createLoan(loanData)
+        })
+
+        await Promise.all(promises)
+        alert(`${selectedItems.length}件の貸出記録を作成しました`)
       }
 
       navigate('/loans')
@@ -202,154 +276,334 @@ const LoanForm: React.FC = () => {
         </div>
       </nav>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="card">
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-gray-900">貸出情報</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="exhibitionId" className="block text-sm font-medium text-gray-700 mb-1">
-                  展示会で絞り込み <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="exhibitionId"
-                  value={selectedExhibitionId}
-                  onChange={(e) => {
-                    setSelectedExhibitionId(e.target.value)
-                    // 展示会を変更したらアイテム選択をクリア
-                    setFormData((prev) => ({ ...prev, itemId: '', itemNo: '', itemName: '' }))
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                  disabled={submitting}
-                >
-                  <option value="">展示会を選択してください</option>
-                  {exhibitions.map((ex) => (
-                    <option key={ex.id} value={ex.id}>
-                      {ex.exhibitionName} ({ex.exhibitionCode})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="itemId" className="block text-sm font-medium text-gray-700 mb-1">
-                  品番（アイテム） <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="itemId"
-                  name="itemId"
-                  value={formData.itemId}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                  disabled={submitting || !selectedExhibitionId}
-                  size={8}
-                >
-                  <option value="">
-                    {selectedExhibitionId
-                      ? 'アイテムを選択してください'
-                      : '先に展示会を選択してください'}
-                  </option>
-                  {filteredItems.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.itemNo} - {item.name}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-500 mt-1">
-                  {selectedExhibitionId ? `${filteredItems.length} 件のカタログアイテム` : ''}
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="staff" className="block text-sm font-medium text-gray-700 mb-1">
-                  担当者 <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="staff"
-                  name="staff"
-                  type="text"
-                  value={formData.staff}
-                  onChange={handleChange}
-                  placeholder="例: 山田太郎"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                  disabled={submitting}
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="borrowDate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  貸出日 <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="borrowDate"
-                  name="borrowDate"
-                  type="date"
-                  value={formData.borrowDate}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                  disabled={submitting}
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label htmlFor="purpose" className="block text-sm font-medium text-gray-700 mb-1">
-                  目的 <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="purpose"
-                  name="purpose"
-                  type="text"
-                  value={formData.purpose}
-                  onChange={handleChange}
-                  placeholder="例: 展示会での使用"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                  disabled={submitting}
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                  備考
-                </label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  rows={3}
-                  placeholder="その他の情報"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  disabled={submitting}
-                />
-              </div>
-
-              {isEditMode && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              {/* 左カラム：入力フォーム群 */}
+              <div className="space-y-5">
                 <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                    ステータス
+                  <label htmlFor="exhibitionId" className="block text-sm font-medium text-gray-700 mb-1">
+                    展示会で絞り込み <span className="text-gray-500 text-xs">(任意)</span>
                   </label>
                   <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
+                    id="exhibitionId"
+                    value={selectedExhibitionId}
+                    onChange={(e) => {
+                      setSelectedExhibitionId(e.target.value)
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     disabled={submitting}
                   >
-                    <option value="borrowed">貸出中</option>
-                    <option value="returned">返却済み</option>
+                    <option value="">すべてのアイテムから選択</option>
+                    {exhibitions.map((ex) => (
+                      <option key={ex.id} value={ex.id}>
+                        {ex.exhibitionName} ({ex.exhibitionCode})
+                      </option>
+                    ))}
                   </select>
                 </div>
-              )}
+
+                <div>
+                  <label htmlFor="staff" className="block text-sm font-medium text-gray-700 mb-1">
+                    担当者 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="staff"
+                    name="staff"
+                    type="text"
+                    value={formData.staff}
+                    onChange={handleChange}
+                    placeholder="例: 山田太郎"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="borrowDate"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    貸出日 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="borrowDate"
+                    name="borrowDate"
+                    type="date"
+                    value={formData.borrowDate}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="purpose" className="block text-sm font-medium text-gray-700 mb-1">
+                    目的 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="purpose"
+                    name="purpose"
+                    type="text"
+                    value={formData.purpose}
+                    onChange={handleChange}
+                    placeholder="例: 展示会での使用"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                    備考
+                  </label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder="その他の情報"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    disabled={submitting}
+                  />
+                </div>
+
+                {isEditMode && (
+                  <div>
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                      ステータス
+                    </label>
+                    <select
+                      id="status"
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      disabled={submitting}
+                    >
+                      <option value="borrowed">貸出中</option>
+                      <option value="returned">返却済み</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* 右カラム：アイテム選択 */}
+              <div className="flex flex-col h-full">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  アイテム選択 <span className="text-red-500">*</span>
+                </label>
+
+                {/* 検索ボックス */}
+                <div className="relative mb-2">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="品番、名前、企画ID、作成者IDで検索..."
+                    value={itemSearchQuery}
+                    onChange={(e) => setItemSearchQuery(e.target.value)}
+                    className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                </div>
+
+                {/* 選択済みアイテム表示エリア（コンパクト） */}
+                {selectedItems.length > 0 && (
+                  <div className="mb-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-bold text-blue-900">選択中: {selectedItems.length}件</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isEditMode) return
+                          setSelectedItems([])
+                        }}
+                        className={`text-xs text-red-500 hover:text-red-700 underline ${isEditMode ? 'hidden' : ''}`}
+                      >
+                        すべて解除
+                      </button>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-200 rounded max-h-32 overflow-y-auto divide-y divide-blue-100">
+                      {selectedItems.map(item => (
+                        <div key={item.id} className="p-2 flex justify-between items-center transition-colors hover:bg-blue-100">
+                          <div className="flex items-center gap-2">
+                            {/* 選択リストのサムネイルは小さめでOK */}
+                            {item.images?.[0]?.url ? (
+                              <img
+                                src={item.images[0].url}
+                                alt=""
+                                className="w-8 h-8 object-cover rounded border border-blue-200 bg-white"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-white rounded border border-blue-200 flex items-center justify-center text-[10px] text-blue-400">NoImg</div>
+                            )}
+                            <div className="overflow-hidden">
+                              <div className="font-bold text-blue-900 text-xs truncate">{item.itemNo}</div>
+                              <div className="text-blue-700 text-[10px] truncate">{item.name}</div>
+                            </div>
+                          </div>
+                          {!isEditMode && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(item.id!)}
+                              className="text-gray-400 hover:text-red-500 p-1"
+                              title="削除"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* アイテムリスト（メイン） */}
+                <div className="border border-gray-300 rounded-md flex-grow overflow-y-auto bg-white min-h-[500px] max-h-[800px]">
+                  {loadingItems ? (
+                    <div className="p-4 text-center text-gray-500">読み込み中...</div>
+                  ) : availableItems.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">アイテムが見つかりません</div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {availableItems
+                        .filter(item => {
+                          if (!itemSearchQuery) return true
+                          const query = itemSearchQuery.toLowerCase()
+                          return (
+                            item.itemNo.toLowerCase().includes(query) ||
+                            item.name.toLowerCase().includes(query) ||
+                            (item.plannerId && item.plannerId.toLowerCase().includes(query)) ||
+                            (item.createdBy && item.createdBy.toLowerCase().includes(query))
+                          )
+                        })
+                        .map((item) => {
+                          // 貸出中かどうかの判定
+                          const activeLoan = activeLoans.find(
+                            (l) => l.itemId === item.id && l.status === 'borrowed'
+                          )
+
+                          // 編集モードで、現在選択されているアイテム（自分自身の貸出）の場合は「貸出中」扱いしない
+                          const isSelfLoan = isEditMode && activeLoan && activeLoan.itemId === formData.itemId;
+                          const isBorrowed = !!activeLoan && !isSelfLoan;
+
+                          // 選択されているか判定
+                          const isSelected = selectedItems.some(i => i.id === item.id);
+
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => {
+                                if (submitting || isBorrowed) return
+                                handleItemClick(item)
+                              }}
+                              className={`relative p-3 transition-colors ${isBorrowed
+                                  ? 'bg-gray-50 cursor-not-allowed opacity-75'
+                                  : 'cursor-pointer hover:bg-gray-50'
+                                } ${isSelected ? 'bg-primary-50 border-l-4 border-primary-500' : ''
+                                }`}
+                            >
+                              <div className="flex gap-3">
+                                {/* サムネイル画像 - リクエスト通り大きく表示 (w-20 h-20) */}
+                                <div className="flex-shrink-0">
+                                  {item.images && item.images.length > 0 ? (
+                                    <img
+                                      src={item.images[0].url}
+                                      alt=""
+                                      className="w-20 h-20 object-contain rounded border border-gray-200 bg-gray-50"
+                                      loading="lazy"
+                                    />
+                                  ) : (
+                                    <div className="w-20 h-20 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-gray-300 text-xs">
+                                      No Img
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* テキスト情報 */}
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <div className="flex justify-between items-start">
+                                    <span className={`font-medium text-base truncate ${isBorrowed ? 'text-gray-500' : 'text-gray-900'}`}>{item.itemNo}</span>
+                                    {isBorrowed ? (
+                                      <span className="text-xs text-white bg-red-500 px-2 py-1 rounded whitespace-nowrap ml-2 font-bold shadow-sm">
+                                        貸出中
+                                      </span>
+                                    ) : (
+                                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap ml-2">
+                                        {item.composition || '混率なし'}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* 貸出中情報の表示 */}
+                                  {isBorrowed && activeLoan ? (
+                                    <div className="text-xs text-red-600 font-medium mt-1 bg-red-50 p-1 rounded border border-red-100">
+                                      担当: {activeLoan.staff} <br />
+                                      ({new Date(activeLoan.borrowDate.toDate()).toLocaleDateString()})
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <div className="text-sm text-gray-600 truncate mt-0.5">{item.name}</div>
+                                      <div className="flex justify-between items-center mt-1">
+                                        <div className="text-xs text-gray-400">
+                                          {!!item.price && `¥${item.price.toLocaleString()}`}
+                                        </div>
+                                        {item.plannerId && (
+                                          <div className="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                                            {item.plannerId}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      {availableItems.filter(item => {
+                        if (!itemSearchQuery) return true
+                        const query = itemSearchQuery.toLowerCase()
+                        return (
+                          item.itemNo.toLowerCase().includes(query) ||
+                          item.name.toLowerCase().includes(query) ||
+                          (item.plannerId && item.plannerId.toLowerCase().includes(query)) ||
+                          (item.createdBy && item.createdBy.toLowerCase().includes(query))
+                        )
+                      }).length === 0 && (
+                          <div className="p-4 text-center text-gray-500">
+                            検索結果なし
+                          </div>
+                        )}
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  全 {availableItems.length} 件中 {availableItems.filter(item => {
+                    if (!itemSearchQuery) return true
+                    const query = itemSearchQuery.toLowerCase()
+                    return (
+                      item.itemNo.toLowerCase().includes(query) ||
+                      item.name.toLowerCase().includes(query) ||
+                      (item.plannerId && item.plannerId.toLowerCase().includes(query)) ||
+                      (item.createdBy && item.createdBy.toLowerCase().includes(query))
+                    )
+                  }).length
+                  } 件を表示
+                </p>
+              </div>
             </div>
           </div>
 
@@ -359,7 +613,7 @@ const LoanForm: React.FC = () => {
               キャンセル
             </button>
             <button type="submit" disabled={submitting} className="btn-primary">
-              {submitting ? '保存中...' : isEditMode ? '更新' : '作成'}
+              {submitting ? '保存中...' : isEditMode ? '更新' : '一括作成'}
             </button>
           </div>
         </form>

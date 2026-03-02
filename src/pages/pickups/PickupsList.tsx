@@ -101,7 +101,7 @@ const PickupsList: React.FC = () => {
       console.log('お客様名:', pickup.customerName)
 
       // アイテムデータを読み込み
-      const { items: allItems } = await itemsService.listItems({ status: 'active' })
+      const allItems = await itemsService.listAllItems({ status: 'active' })
       const selectedItems = allItems.filter((item) => pickup.itemIds?.includes(item.id!))
 
       if (selectedItems.length === 0) {
@@ -159,25 +159,25 @@ const PickupsList: React.FC = () => {
       {/* ナビゲーションバー */}
       <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex flex-wrap justify-between items-center min-h-[5rem] py-2 gap-2">
             {/* 左側：タイトルと新規作成 */}
-            <div className="flex items-center space-x-6">
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">ピックアップリスト管理</h1>
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <h1 className="text-sm sm:text-2xl font-black text-gray-900 tracking-tight whitespace-nowrap">ピックアップリスト管理</h1>
               <button
                 onClick={() => navigate('/pickups/new')}
-                className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500"
+                className="inline-flex items-center px-3 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500 text-xs sm:text-base whitespace-nowrap"
               >
                 + 新規作成
               </button>
             </div>
 
             {/* 右側：ユーザー情報とホームボタン */}
-            <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-600 font-medium hidden sm:block">{currentUser?.email}</span>
-              <div className="h-10 w-px bg-gray-300"></div>
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <span className="text-xs sm:text-sm text-gray-600 font-medium hidden md:block">{currentUser?.email}</span>
+              <div className="h-10 w-px bg-gray-300 hidden md:block"></div>
               <button
                 onClick={() => navigate('/')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
+                className="inline-flex items-center px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg text-xs sm:text-base whitespace-nowrap"
               >
                 ← ホーム
               </button>
@@ -235,25 +235,25 @@ const PickupsList: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     ピックアップコード
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     お客様名
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     展示会
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     アイテム数
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     作成日
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     ステータス
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                     アクション
                   </th>
                 </tr>
@@ -268,18 +268,18 @@ const PickupsList: React.FC = () => {
                 ) : (
                   pickups.map((pickup) => (
                     <tr key={pickup.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{pickup.pickupCode}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{pickup.customerName}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{pickup.pickupCode}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{pickup.customerName}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
                         {pickup.exhibitionName || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{pickup.itemIds?.length ?? 0}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{pickup.itemIds?.length ?? 0}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
                         {formatDate(pickup.createdDate)}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 text-sm whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                             pickup.status === 'active'
                               ? 'bg-green-100 text-green-800'
                               : 'bg-gray-100 text-gray-800'
@@ -288,20 +288,20 @@ const PickupsList: React.FC = () => {
                           {pickup.status === 'active' ? '有効' : 'アーカイブ'}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex flex-nowrap gap-1">
                           {/* 主要アクション */}
                           <button
                             onClick={() => handleExportPDF(pickup)}
                             disabled={!pickup.itemIds || pickup.itemIds.length === 0}
-                            className="inline-flex items-center px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-medium rounded-md hover:bg-purple-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center px-2 py-1.5 bg-purple-50 text-purple-700 text-xs font-medium rounded-md hover:bg-purple-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                             title="PDF出力"
                           >
                             📄 PDF
                           </button>
                           <button
                             onClick={() => copyShareUrl(pickup.shareUrl || pickupsService.generateShareUrl(pickup.id!))}
-                            className="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 text-xs font-medium rounded-md hover:bg-green-100 transition-colors"
+                            className="inline-flex items-center px-2 py-1.5 bg-green-50 text-green-700 text-xs font-medium rounded-md hover:bg-green-100 transition-colors whitespace-nowrap"
                             title="共有URLをコピー"
                           >
                             🔗 URL
@@ -309,21 +309,21 @@ const PickupsList: React.FC = () => {
                           {/* セカンダリアクション */}
                           <button
                             onClick={() => navigate(`/pickups/${pickup.id}/detail`)}
-                            className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-md hover:bg-blue-100 transition-colors"
+                            className="inline-flex items-center px-2 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-md hover:bg-blue-100 transition-colors whitespace-nowrap"
                             title="詳細を表示"
                           >
                             📋 詳細
                           </button>
                           <button
                             onClick={() => navigate(`/pickups/${pickup.id}`)}
-                            className="inline-flex items-center px-3 py-1.5 bg-gray-50 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-100 transition-colors"
+                            className="inline-flex items-center px-2 py-1.5 bg-gray-50 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-100 transition-colors whitespace-nowrap"
                             title="編集"
                           >
                             ✏️ 編集
                           </button>
                           <button
                             onClick={() => handleDelete(pickup.id!)}
-                            className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 text-xs font-medium rounded-md hover:bg-red-100 transition-colors"
+                            className="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-700 text-xs font-medium rounded-md hover:bg-red-100 transition-colors whitespace-nowrap"
                             title="削除"
                           >
                             🗑️ 削除

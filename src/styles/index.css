@@ -11,10 +11,14 @@
 @layer components {
   .btn-primary {
     @apply inline-flex items-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500;
+    white-space: nowrap;
+    min-width: fit-content;
   }
 
   .btn-secondary {
     @apply inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg;
+    white-space: nowrap;
+    min-width: fit-content;
   }
 
   .input-field {
@@ -23,5 +27,26 @@
 
   .card {
     @apply bg-white rounded-lg shadow-md p-6;
+  }
+}
+
+/* モバイル表示の最適化 */
+@layer utilities {
+  /* ボタンが縦書きにならないようにする */
+  button, .button, a.button {
+    white-space: nowrap !important;
+  }
+
+  /* テーブルのヘッダーとセルが縦書きにならないようにする */
+  th, td {
+    white-space: nowrap !important;
+  }
+
+  /* フレックスコンテナが縦並びになりすぎないようにする */
+  @media (max-width: 640px) {
+    .flex.gap-4, .flex.gap-2 {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
   }
 }

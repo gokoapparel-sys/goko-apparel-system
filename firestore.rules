@@ -8,7 +8,8 @@ service cloud.firestore {
 
     // アイテムコレクション
     match /items/{itemId} {
-      allow read: if request.auth != null;
+      allow get: if true; // IDを知っている（または参照として持っている）場合のみ取得可能
+      allow list: if request.auth != null; // 一覧取得は認証ユーザーのみ
       allow create, update: if request.auth != null;
       allow delete: if request.auth != null;
     }
@@ -50,7 +51,8 @@ service cloud.firestore {
 
     // ピックアップコレクション
     match /pickups/{pickupId} {
-      allow read: if request.auth != null;
+      allow get: if true; // IDを知っている場合のみ取得可能（URLを知っている）
+      allow list: if request.auth != null; // 一覧取得は認証ユーザーのみ
       allow create, update: if request.auth != null;
       allow delete: if request.auth != null;
     }

@@ -31,7 +31,7 @@ const PickupDetail: React.FC = () => {
         setPickup(data)
 
         // アイテムデータを読み込み
-        const { items: allItems } = await itemsService.listItems()
+        const allItems = await itemsService.listAllItems()
         const selectedItems = allItems.filter((item) => data.itemIds?.includes(item.id!))
         setItems(selectedItems)
       } else {

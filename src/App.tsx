@@ -21,6 +21,7 @@ import StaffWebCatalog from './pages/exhibitions/StaffWebCatalog'
 import CustomerWebCatalog from './pages/exhibitions/CustomerWebCatalog'
 import ExhibitionLandingPage from './pages/exhibitions/ExhibitionLandingPage'
 import Exhibition2026AWLP from './pages/exhibitions/Exhibition2026AWLP'
+import Exhibition2026JanLP from './pages/exhibitions/Exhibition2026JanLP'
 import Exhibition2026AWPDFViewer from './pages/exhibitions/Exhibition2026AWPDFViewer'
 import PickupsList from './pages/pickups/PickupsList'
 import PickupForm from './pages/pickups/PickupForm'
@@ -32,6 +33,8 @@ import ScanItem from './pages/pickups/ScanItem'
 import LoansList from './pages/loans/LoansList'
 import LoanForm from './pages/loans/LoanForm'
 import LoanDetail from './pages/loans/LoanDetail'
+import PickupRankingList from './pages/pickupRankings/PickupRankingList'
+import PickupRankingDetail from './pages/pickupRankings/PickupRankingDetail'
 
 const App: React.FC = () => {
   return (
@@ -48,8 +51,10 @@ const App: React.FC = () => {
           <Route path="/exhibitions/:id/customer-catalog" element={<CustomerWebCatalog />} />
           {/* Public exhibition landing page */}
           <Route path="/exhibitions/:id/landing" element={<ExhibitionLandingPage />} />
-          {/* 2026 AW Exhibition Landing Page */}
+          {/* 2026 AW Exhibition Landing Page (December) */}
           <Route path="/exhibition-2026-aw" element={<Exhibition2026AWLP />} />
+          {/* 2026 AW Exhibition Landing Page (January) */}
+          <Route path="/exhibition-2026-jan" element={<Exhibition2026JanLP />} />
           {/* 2026 AW Exhibition PDF */}
           <Route path="/exhibition-2026-aw-pdf" element={<Exhibition2026AWPDFViewer />} />
           <Route
@@ -265,6 +270,22 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <LoanDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pickup-rankings"
+            element={
+              <PrivateRoute>
+                <PickupRankingList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pickup-rankings/:id"
+            element={
+              <PrivateRoute>
+                <PickupRankingDetail />
               </PrivateRoute>
             }
           />

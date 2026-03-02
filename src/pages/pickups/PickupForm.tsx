@@ -28,6 +28,8 @@ const PickupForm: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [createdByFilter, setCreatedByFilter] = useState('')
+  const [plannerIdFilter, setPlannerIdFilter] = useState('')
 
   useEffect(() => {
     loadData()
@@ -326,17 +328,44 @@ const PickupForm: React.FC = () => {
           <div className="mt-8 pt-8 border-t">
             <h2 className="text-xl font-bold text-gray-900 mb-4">アイテム選択</h2>
 
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
-                選択済み: {formData.itemIds.length} 件
-              </p>
-              <input
-                type="text"
-                placeholder="品番またはアイテム名で検索..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
+            <div className="mb-4 flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="品番またはアイテム名で検索..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div className="flex-1">
+                <select
+                  value={createdByFilter}
+                  onChange={(e) => setCreatedByFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">全ての入力者</option>
+                  {[...new Set(catalogItems.map(item => item.createdBy).filter(Boolean))].map(createdBy => (
+                    <option key={createdBy} value={createdBy}>
+                      {createdBy}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <select
+                  value={plannerIdFilter}
+                  onChange={(e) => setPlannerIdFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">全ての企画担当者</option>
+                  {[...new Set(catalogItems.map(item => item.plannerId).filter(Boolean))].map(plannerId => (
+                    <option key={plannerId} value={plannerId}>
+                      {plannerId}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {formData.exhibitionId ? (
@@ -359,21 +388,28 @@ const PickupForm: React.FC = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         生地No.
                       </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        入力者ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        企画担当者ID
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {catalogItems
                       .filter(
                         (item) =>
-                          item.itemNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                          (item.itemNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            item.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+                          (!createdByFilter || item.createdBy === createdByFilter) &&
+                          (!plannerIdFilter || item.plannerId === plannerIdFilter)
                       )
                       .map((item) => (
                         <tr
                           key={item.id}
-                          className={`hover:bg-gray-50 ${
-                            formData.itemIds.includes(item.id!) ? 'bg-blue-50' : ''
-                          }`}
+                          className={`hover:bg-gray-50 ${formData.itemIds.includes(item.id!) ? 'bg-blue-50' : ''
+                            }`}
                         >
                           <td className="px-4 py-3">
                             <input
@@ -390,6 +426,12 @@ const PickupForm: React.FC = () => {
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900">
                             {item.fabricNo || '-'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {item.createdBy || '-'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {item.plannerId || '-'}
                           </td>
                         </tr>
                       ))}

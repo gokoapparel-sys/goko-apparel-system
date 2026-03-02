@@ -16,6 +16,7 @@ const ItemsList: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [createdByFilter, setCreatedByFilter] = useState('')
+  const [plannerIdFilter, setPlannerIdFilter] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null)
   const [firstDoc, setFirstDoc] = useState<QueryDocumentSnapshot | null>(null)
@@ -42,8 +43,15 @@ const ItemsList: React.FC = () => {
       // 入力者フィルターを適用
       let filteredItems = result.items
       if (createdByFilter.trim()) {
-        filteredItems = result.items.filter(item =>
+        filteredItems = filteredItems.filter(item =>
           item.createdBy?.toLowerCase().includes(createdByFilter.toLowerCase())
+        )
+      }
+
+      // 企画担当者フィルターを適用
+      if (plannerIdFilter.trim()) {
+        filteredItems = filteredItems.filter(item =>
+          item.plannerId?.toLowerCase().includes(plannerIdFilter.toLowerCase())
         )
       }
 
@@ -149,25 +157,25 @@ const ItemsList: React.FC = () => {
       {/* ナビゲーションバー */}
       <nav className="bg-white shadow-lg border-b-4 border-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex flex-wrap justify-between items-center min-h-[5rem] py-2 gap-2">
             {/* 左側：タイトルと新規作成 */}
-            <div className="flex items-center space-x-6">
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">アイテム管理</h1>
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <h1 className="text-base sm:text-2xl font-black text-gray-900 tracking-tight whitespace-nowrap">アイテム管理</h1>
               <button
                 onClick={() => navigate('/items/new')}
-                className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500"
+                className="inline-flex items-center px-3 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-xl hover:shadow-2xl border-2 border-emerald-500 text-xs sm:text-base whitespace-nowrap"
               >
                 + 新規作成
               </button>
             </div>
 
             {/* 右側：ユーザー情報とホームボタン */}
-            <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-600 font-medium hidden sm:block">{currentUser?.email}</span>
-              <div className="h-10 w-px bg-gray-300"></div>
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <span className="text-xs sm:text-sm text-gray-600 font-medium hidden md:block">{currentUser?.email}</span>
+              <div className="h-10 w-px bg-gray-300 hidden md:block"></div>
               <button
                 onClick={() => navigate('/')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg"
+                className="inline-flex items-center px-3 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white font-bold rounded-lg hover:from-emerald-900 hover:to-black transition-all shadow-lg text-xs sm:text-base whitespace-nowrap"
               >
                 ← ホーム
               </button>
@@ -198,15 +206,37 @@ const ItemsList: React.FC = () => {
               <label htmlFor="createdByFilter" className="block text-sm font-medium text-gray-700 mb-1">
                 入力者IDで絞り込み
               </label>
-              <input
+              <select
                 id="createdByFilter"
-                type="text"
                 value={createdByFilter}
                 onChange={(e) => setCreatedByFilter(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="例: tanaka@company.co.jp"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
+              >
+                <option value="">すべて表示</option>
+                {[...new Set(items.map(item => item.createdBy).filter(Boolean))].map(createdBy => (
+                  <option key={createdBy} value={createdBy}>
+                    {createdBy}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label htmlFor="plannerIdFilter" className="block text-sm font-medium text-gray-700 mb-1">
+                企画担当者IDで絞り込み
+              </label>
+              <select
+                id="plannerIdFilter"
+                value={plannerIdFilter}
+                onChange={(e) => setPlannerIdFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">すべて表示</option>
+                {[...new Set(items.map(item => item.plannerId).filter(Boolean))].map(plannerId => (
+                  <option key={plannerId} value={plannerId}>
+                    {plannerId}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="w-full md:w-48">
               <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
@@ -285,6 +315,9 @@ const ItemsList: React.FC = () => {
                         入力者ID
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        企画担当者ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         ステータス
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -349,6 +382,11 @@ const ItemsList: React.FC = () => {
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-600">
                             {item.createdBy || <span className="text-gray-400">-</span>}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-600">
+                            {item.plannerId || <span className="text-gray-400">-</span>}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(item.status ?? 'active')}</td>

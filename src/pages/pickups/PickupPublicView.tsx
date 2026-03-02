@@ -29,9 +29,12 @@ const PickupPublicView: React.FC = () => {
         setPickup(data)
 
         // アイテムデータを読み込み
-        const { items: allItems } = await itemsService.listItems({ status: 'active' })
-        const selectedItems = allItems.filter((item) => data.itemIds?.includes(item.id!))
-        setItems(selectedItems)
+        if (data.itemIds && data.itemIds.length > 0) {
+          const selectedItems = await itemsService.getItemsByIds(data.itemIds)
+          setItems(selectedItems)
+        } else {
+          setItems([])
+        }
       } else {
         setError(true)
       }
