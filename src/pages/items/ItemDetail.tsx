@@ -6,6 +6,7 @@ import { patternsService } from '../../services/patternsService'
 import { Item, Pattern } from '../../types'
 import { Timestamp } from 'firebase/firestore'
 import JSZip from 'jszip'
+import { getStorage, ref, getBlob } from 'firebase/storage'
 
 const ItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -67,6 +68,56 @@ const ItemDetail: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit',
     })
+  }
+
+  // 画像を1枚ダウンロード
+  const handleDownloadImage = async (_url: string, path: string, index: number) => {
+    try {
+      const storage = getStorage()
+      const imageRef = ref(storage, path)
+      const blob = await getBlob(imageRef)
+      const ext = blob.type.split('/')[1] || 'jpg'
+      const downloadName = `${item?.name || 'image'}_${index + 1}.${ext}`
+      const objectUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = downloadName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(objectUrl)
+    } catch (error) {
+      console.error('画像のダウンロードに失敗しました:', error)
+      alert('画像のダウンロードに失敗しました')
+    }
+  }
+
+  // 全画像をZIPでダウンロード
+  const handleDownloadAllImages = async () => {
+    if (!item?.images || item.images.length === 0) return
+    try {
+      const zip = new JSZip()
+      const storage = getStorage()
+      for (let i = 0; i < item.images.length; i++) {
+        const img = item.images[i]
+        const imageRef = ref(storage, img.path)
+        const blob = await getBlob(imageRef)
+        const ext = blob.type.split('/')[1] || 'jpg'
+        zip.file(`${item.name}_${i + 1}.${ext}`, blob)
+      }
+      const content = await zip.generateAsync({ type: 'blob' })
+      const url = URL.createObjectURL(content)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${item.name}_画像.zip`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('画像の一括ダウンロードに失敗しました:', error)
+      alert('画像の一括ダウンロードに失敗しました')
+    }
   }
 
   // 型紙ファイルを一括ダウンロード（ZIP）
@@ -191,27 +242,48 @@ const ItemDetail: React.FC = () => {
           {/* 画像ギャラリー */}
           {item.images && item.images.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">画像</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">画像</h2>
+                <button
+                  onClick={handleDownloadAllImages}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  全画像をダウンロード
+                </button>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {item.images.map((img, index) => (
-                  <a
-                    key={index}
-                    href={img.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
-                    <img
-                      src={img.url}
-                      alt={`${item.name} ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-lg hover:opacity-75 transition-opacity"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.src =
-                          'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle"%3EError%3C/text%3E%3C/svg%3E'
-                      }}
-                    />
-                  </a>
+                  <div key={index} className="relative group">
+                    <a
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${item.name} ${index + 1}`}
+                        className="w-full h-48 object-cover rounded-lg hover:opacity-75 transition-opacity"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src =
+                            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle"%3EError%3C/text%3E%3C/svg%3E'
+                        }}
+                      />
+                    </a>
+                    <button
+                      onClick={() => handleDownloadImage(img.url, img.path, index)}
+                      className="absolute bottom-2 right-2 bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 p-1.5 rounded-md shadow opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="ダウンロード"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { itemsService } from '../../services/itemsService'
 import { patternsService } from '../../services/patternsService'
 import { Pattern } from '../../types'
+import { getStorage, ref, getBlob } from 'firebase/storage'
 
 const ItemForm: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -167,6 +168,28 @@ const ItemForm: React.FC = () => {
   const handleRemoveNewImage = (index: number) => {
     setNewImages((prev) => prev.filter((_, i) => i !== index))
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  // 画像を1枚ダウンロード
+  const handleDownloadImage = async (path: string, index: number) => {
+    try {
+      const storage = getStorage()
+      const imageRef = ref(storage, path)
+      const blob = await getBlob(imageRef)
+      const ext = blob.type.split('/')[1] || 'jpg'
+      const downloadName = `${formData.name || 'image'}_${index + 1}.${ext}`
+      const objectUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = downloadName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(objectUrl)
+    } catch (error) {
+      console.error('画像のダウンロードに失敗しました:', error)
+      alert('画像のダウンロードに失敗しました')
+    }
   }
 
   // 既存画像を削除
@@ -597,6 +620,18 @@ const ItemForm: React.FC = () => {
                         alt={`画像 ${index + 1}`}
                         className="w-full h-32 object-cover rounded-lg"
                       />
+                      {/* ダウンロードボタン */}
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadImage(img.path, index)}
+                        className="absolute bottom-2 left-2 bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 p-1.5 rounded-md shadow opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="ダウンロード"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                      </button>
+                      {/* 削除ボタン */}
                       <button
                         type="button"
                         onClick={() => handleRemoveExistingImage(img.path)}
