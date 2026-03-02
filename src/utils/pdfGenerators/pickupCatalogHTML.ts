@@ -228,14 +228,14 @@ export function generatePickupCatalogHTML({ pickup, items, imageBase64Map }: Pic
 
         .item-image {
           width: 100%;
-          height: 140px;
+          height: 115px;
           background: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
           color: #999;
           font-size: 10px;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
           border-radius: 6px;
           overflow: hidden;
           border: 1px solid #e5e7eb;
@@ -356,6 +356,14 @@ export function generatePickupCatalogHTML({ pickup, items, imageBase64Map }: Pic
                 <div class="item-field">
                   <span class="field-label">生地No.:</span>
                   <span class="field-value">${item.fabricNo || '-'}</span>
+                </div>
+                <div class="item-field">
+                  <span class="field-label">数量:</span>
+                  <span class="field-value">${item.moq || '-'}</span>
+                </div>
+                <div class="item-field">
+                  <span class="field-label">見積り:</span>
+                  <span class="field-value">${item.referencePrice ? `¥${item.referencePrice.toLocaleString()}` : '-'}</span>
                 </div>
               </div>
             `).join('')}
