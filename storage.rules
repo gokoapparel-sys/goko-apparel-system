@@ -4,24 +4,28 @@ service firebase.storage {
     // 認証済みユーザーのみアクセス可能
     match /{allPaths=**} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null
+      // アップロード・更新時のみサイズ制限（削除時は request.resource が null のため対象外）
+      allow create, update: if request.auth != null
                    && request.resource.size < 5 * 1024 * 1024; // 5MB制限
+      allow delete: if request.auth != null;
     }
 
     // アイテム画像
     match /items/{itemId}/{fileName} {
       allow read: if true;
-      allow write: if request.auth != null
+      allow create, update: if request.auth != null
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null;
     }
 
     // 型紙ファイル
     match /patterns/{patternId}/{fileName} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null
+      allow create, update: if request.auth != null
                    && request.resource.size < 10 * 1024 * 1024
                    && request.resource.contentType.matches('application/pdf');
+      allow delete: if request.auth != null;
     }
   }
 }

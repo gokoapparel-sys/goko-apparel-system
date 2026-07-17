@@ -97,8 +97,11 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   ])
 }
 
+// 同時ダウンロード数の上限（多すぎるとブラウザの接続数制限に達するため制限）
+const IMAGE_FETCH_CONCURRENCY = 10
+
 /**
- * 複数の画像URLをbase64に変換
+ * 複数の画像URLをbase64に変換（並行ダウンロードで高速化）
  */
 export async function convertImagesToBase64(
   imageUrls: string[]
@@ -113,7 +116,11 @@ export async function convertImagesToBase64(
   // プレースホルダー画像を事前に生成
   const placeholderImage = generatePlaceholderImage()
 
-  for (const url of imageUrls) {
+  // 重複URLを除外（同じ画像を何度もダウンロードしない）
+  const uniqueUrls = [...new Set(imageUrls)]
+
+  // 1件を変換する処理（失敗時はプレースホルダー）
+  const convertOne = async (url: string): Promise<void> => {
     try {
       // 5秒のタイムアウトを設定
       results[url] = await withTimeout(imageUrlToBase64(url), 5000)
@@ -128,6 +135,12 @@ export async function convertImagesToBase64(
       // エラーの場合はプレースホルダー画像を使用
       results[url] = placeholderImage
     }
+  }
+
+  // 同時実行数を制限しつつ並行ダウンロード
+  for (let i = 0; i < uniqueUrls.length; i += IMAGE_FETCH_CONCURRENCY) {
+    const batch = uniqueUrls.slice(i, i + IMAGE_FETCH_CONCURRENCY)
+    await Promise.all(batch.map(convertOne))
   }
 
   console.log('=== 画像変換完了 ===')

@@ -194,6 +194,24 @@ const ItemForm: React.FC = () => {
     }
   }
 
+  // 代表画像に設定（選んだ画像を先頭に移動）
+  const handleSetPrimaryImage = async (path: string) => {
+    if (!id) return
+    if (existingImages[0]?.path === path) return // 既に代表画像
+
+    try {
+      await itemsService.setPrimaryImage(id, path)
+      setExistingImages((prev) => {
+        const target = prev.find((img) => img.path === path)
+        if (!target) return prev
+        return [target, ...prev.filter((img) => img.path !== path)]
+      })
+    } catch (error) {
+      console.error('代表画像設定エラー:', error)
+      alert('代表画像の設定に失敗しました')
+    }
+  }
+
   // 既存画像を削除
   const handleRemoveExistingImage = async (path: string) => {
     if (!id) return
@@ -634,14 +652,38 @@ const ItemForm: React.FC = () => {
             {isEditMode && existingImages.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">現在の画像</h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  「★代表にする」を押した画像が、一覧表・カタログ・PDF に代表画像として表示されます
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {existingImages.map((img, index) => (
-                    <div key={index} className="relative group">
+                    <div
+                      key={index}
+                      className={`relative group rounded-lg ${
+                        index === 0 ? 'ring-2 ring-emerald-500 ring-offset-2' : ''
+                      }`}
+                    >
                       <img
                         src={img.url}
                         alt={`画像 ${index + 1}`}
                         className="w-full h-32 object-cover rounded-lg"
                       />
+                      {/* 代表画像バッジ / 代表にするボタン */}
+                      {index === 0 ? (
+                        <span className="absolute top-2 left-2 bg-emerald-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
+                          ★ 代表
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetPrimaryImage(img.path)}
+                          className="absolute top-2 left-2 bg-white bg-opacity-90 hover:bg-opacity-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="この画像を代表画像にする"
+                          disabled={submitting}
+                        >
+                          ★ 代表にする
+                        </button>
+                      )}
                       {/* ダウンロードボタン */}
                       <button
                         type="button"

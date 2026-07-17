@@ -371,6 +371,33 @@ export const itemsService = {
   },
 
   /**
+   * 代表画像を設定（指定した画像を配列の先頭に移動）
+   * 一覧・カタログ・PDF などは images[0] を代表画像として使用するため、
+   * 先頭に移動することで全ての表示箇所に反映される
+   */
+  async setPrimaryImage(id: string, path: string): Promise<void> {
+    try {
+      const item = await this.getItem(id)
+      if (!item) {
+        throw new Error('アイテムが見つかりません')
+      }
+
+      const images = item.images || []
+      const target = images.find((img) => img.path === path)
+      if (!target) {
+        throw new Error('指定した画像が見つかりません')
+      }
+
+      // 対象画像を先頭に、残りを元の順序で後ろに並べ替え
+      const reordered = [target, ...images.filter((img) => img.path !== path)]
+      await this.updateItem(id, { images: reordered })
+    } catch (error) {
+      console.error('代表画像設定エラー:', error)
+      throw error
+    }
+  },
+
+  /**
    * 画像を削除
    */
   async removeImage(id: string, path: string): Promise<void> {
